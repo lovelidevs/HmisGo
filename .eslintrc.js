@@ -11,19 +11,18 @@ module.exports = {
         "no-shadow": "off",
         "no-undef": "off",
         quotes: ["error", "double"],
-        "react/react-in-jsx-scope": "off",
         "import/order": [
           "error",
           {
             groups: ["builtin", "external", "internal"],
             pathGroups: [
               {
-                pattern: "react",
+                pattern: "react+(|-native)",
                 group: "external",
                 position: "before",
               },
             ],
-            pathGroupsExcludedImportTypes: ["react"],
+            pathGroupsExcludedImportTypes: ["react+(|-native)"],
             "newlines-between": "always",
             alphabetize: {
               order: "asc",
