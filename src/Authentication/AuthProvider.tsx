@@ -44,9 +44,11 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         logIn,
         isAuthenticated: user !== null,
         user,
-        organization: (user?.customData as UserCustomData).organization,
-        role: (user?.customData as UserCustomData).role,
-        status: (user?.customData as UserCustomData).status,
+        organization: user
+          ? (user.customData as UserCustomData).organization
+          : null,
+        role: user ? (user.customData as UserCustomData).role : null,
+        status: user ? (user.customData as UserCustomData).status : null,
       }}>
       {children}
     </AuthContext.Provider>
