@@ -1,39 +1,51 @@
-import React, {useState} from "react";
-import {Button, TextInput, View} from "react-native";
+import React, {useContext, useState} from "react";
+import {Alert, Button, View} from "react-native";
 
 import {SafeAreaView} from "react-native-safe-area-context";
 
-//import {AuthContext} from "./AuthProvider";
+import LLTextInput from "../LLComponents/LLTextInput";
+import {AuthContext} from "./AuthProvider";
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  //const authContext = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   return (
-    <SafeAreaView className="p-2">
-      <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2">
-        <TextInput
-          placeholder="email"
-          keyboardType="email-address"
-          className="border text-lg p-2"
-          defaultValue={email}
-          onChangeText={text => setEmail(text)}
-        />
-        <TextInput
-          placeholder="password"
-          secureTextEntry={true}
-          className="border text-lg p-2"
-          defaultValue={password}
-          onChangeText={text => setPassword(text)}
-        />
+    <SafeAreaView className="p-6">
+      <View className="h-full flex flex-col flex-nowrap justify-center items-stretch space-y-4">
+        <View>
+          <LLTextInput
+            type="email"
+            value={email}
+            onChange={value => setEmail(value)}
+            placeholder="email"
+          />
+        </View>
+        <View>
+          <LLTextInput
+            type="password"
+            value={password}
+            onChange={value => setPassword(value)}
+            placeholder="password"
+          />
+        </View>
         <View>
           {/* TODO: https://reactnative.dev/docs/pressable */}
           <Button title="Forgot Password?" onPress={() => {}} />
         </View>
         <View className="flex flex-row flex-wrap justify-evenly items-center">
-          <Button title="Log In" onPress={() => {}} />
+          <Button
+            title="Log In"
+            onPress={async () => {
+              try {
+                await authContext?.logIn(email, password);
+              } catch (error) {
+                Alert.alert("", String(error));
+              }
+            }}
+          />
           <Button title="Sign Up" onPress={() => {}} />
         </View>
       </View>

@@ -1,1 +1,1 @@
-import 'tailwindcss-react-native/types.d';
+import "tailwindcss-react-native/types.d";

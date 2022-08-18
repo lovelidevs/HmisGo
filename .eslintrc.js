@@ -11,6 +11,7 @@ module.exports = {
         "no-shadow": "off",
         "no-undef": "off",
         quotes: ["error", "double"],
+        curly: ["error", "multi"],
         "import/order": [
           "error",
           {
