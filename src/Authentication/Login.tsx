@@ -17,18 +17,18 @@ const Login = () => {
       <View className="h-full flex flex-col flex-nowrap justify-center items-stretch space-y-4">
         <View>
           <LLTextInput
-            type="email"
             value={email}
             onChange={value => setEmail(value)}
             placeholder="email"
+            type="email"
           />
         </View>
         <View>
           <LLTextInput
-            type="password"
             value={password}
             onChange={value => setPassword(value)}
             placeholder="password"
+            type="password"
           />
         </View>
         <View>

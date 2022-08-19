@@ -1,14 +1,25 @@
-import React, {useContext, useEffect, useState} from "react";
-import {Alert, ScrollView, Text, View} from "react-native";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {
+  Alert,
+  Button,
+  findNodeHandle,
+  ScrollView,
+  UIManager,
+  View,
+} from "react-native";
 
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {ObjectId} from "bson";
 import {SafeAreaView} from "react-native-safe-area-context";
 import Realm from "realm";
 
 import {AuthContext} from "./Authentication/AuthProvider";
+import ClientLI from "./ClientLI";
+import {RootStackParamList} from "./NavigationStack";
 
 // TODO: Submit, New Client, Log Out
 // TODO: Implement ActivityIndicators eventually
+// TODO: Add a menu button to the header
 
 const clientSchema = {
   name: "client",
@@ -24,7 +35,7 @@ const clientSchema = {
   primaryKey: "_id",
 };
 
-type Client = {
+export type Client = {
   _id: ObjectId;
   organization: string;
   lastName: string;
@@ -34,12 +45,16 @@ type Client = {
   hmisID?: string;
 };
 
-const MainView = () => {
+const MainView = ({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
   const [realm, setRealm] = useState<Realm | null>(null);
   const [clientsCollection, setClientsCollection] =
     useState<Realm.Collection<Realm.Object> | null>(null);
 
   const auth = useContext(AuthContext);
+
+  const menuButton = useRef<Button>(null);
 
   useEffect(() => {
     (async () => {
@@ -80,16 +95,53 @@ const MainView = () => {
     };
   }, [realm, clientsCollection]);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          ref={menuButton}
+          title="⋮"
+          onPress={() => {
+            const node = findNodeHandle(menuButton.current);
+            if (!node) return;
+
+            // TODO: add iOS version
+
+            UIManager.showPopupMenu(
+              node,
+              ["Submit", "New Client", "Logout"],
+              () => console.log("Show Pop Up Menu Error"),
+              (item: string, index: number | undefined) => {
+                switch (index) {
+                  case 0:
+                    console.log("Submit pressed!");
+                    // TODO
+                    break;
+                  case 1:
+                    navigation.navigate("NewClient");
+                    break;
+                  case 2:
+                    auth?.logOut();
+                    break;
+                  default:
+                    console.log(item);
+                    break;
+                }
+              },
+            );
+          }}
+        />
+      ),
+    });
+  }, [navigation, auth]);
+
   return (
     <SafeAreaView className="p-6">
-      <Text>OINKERVILLE</Text>
-      <ScrollView>
+      <ScrollView className="space-y-2">
         {clientsCollection &&
           clientsCollection.map(client => (
             <View key={String((client as unknown as Client)._id)}>
-              <Text>{`${(client as unknown as Client).lastName} ${
-                (client as unknown as Client).firstName
-              }`}</Text>
+              <ClientLI client={client as unknown as Client} isActive={false} />
             </View>
           ))}
       </ScrollView>

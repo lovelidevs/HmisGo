@@ -12,6 +12,7 @@ type UserCustomData = {
 
 type AuthContextType = {
   logIn: (email: string, password: string) => Promise<void>;
+  logOut: () => Promise<void>;
   isAuthenticated: boolean;
   user: Realm.User | null;
   organization: string | null;
@@ -38,10 +39,16 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
     }
   };
 
+  const logOut = async () => {
+    await app.currentUser?.logOut();
+    setUser(null);
+  };
+
   return (
     <AuthContext.Provider
       value={{
         logIn,
+        logOut,
         isAuthenticated: user !== null,
         user,
         organization: user
