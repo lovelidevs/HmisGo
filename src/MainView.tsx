@@ -1,8 +1,10 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
+  ActionSheetIOS,
   Alert,
   Button,
   findNodeHandle,
+  Platform,
   ScrollView,
   UIManager,
   View,
@@ -100,35 +102,45 @@ const MainView = ({
       headerRight: () => (
         <Button
           ref={menuButton}
-          title="⋮"
+          title="☰"
           onPress={() => {
             const node = findNodeHandle(menuButton.current);
             if (!node) return;
 
-            // TODO: add iOS version
+            const menuItems = ["Submit", "New Client", "Logout"];
 
-            UIManager.showPopupMenu(
-              node,
-              ["Submit", "New Client", "Logout"],
-              () => console.log("Show Pop Up Menu Error"),
-              (item: string, index: number | undefined) => {
-                switch (index) {
-                  case 0:
-                    console.log("Submit pressed!");
-                    // TODO
-                    break;
-                  case 1:
-                    navigation.navigate("NewClient");
-                    break;
-                  case 2:
-                    auth?.logOut();
-                    break;
-                  default:
-                    console.log(item);
-                    break;
-                }
-              },
-            );
+            const handlePress = (index: number | undefined) => {
+              switch (index) {
+                case 0:
+                  console.log("Submit pressed!");
+                  // TODO
+                  break;
+                case 1:
+                  navigation.navigate("NewClient");
+                  break;
+                case 2:
+                  auth?.logOut();
+                  break;
+              }
+            };
+
+            if (Platform.OS === "ios")
+              ActionSheetIOS.showActionSheetWithOptions(
+                {
+                  anchor: node,
+                  options: [...menuItems, "Cancel"],
+                  cancelButtonIndex: 3,
+                },
+                (index: number) => handlePress(index),
+              );
+
+            if (Platform.OS === "android")
+              UIManager.showPopupMenu(
+                node,
+                menuItems,
+                () => console.log("Show Pop Up Menu Error"),
+                (item: string, index: number | undefined) => handlePress(index),
+              );
           }}
         />
       ),
@@ -136,7 +148,7 @@ const MainView = ({
   }, [navigation, auth]);
 
   return (
-    <SafeAreaView className="p-6">
+    <SafeAreaView className="px-6">
       <ScrollView className="space-y-2">
         {clientsCollection &&
           clientsCollection.map(client => (

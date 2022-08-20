@@ -20,6 +20,7 @@ const LLTextInput = ({
       placeholderTextColor="lightgrey"
       value={value}
       onChangeText={onChange}
+      autoCapitalize="none"
       className={`rounded-lg border text-lg p-2 text-black bg-white ${twStyles}`}
       {...(type === "email" && {keyboardType: "email-address"})}
       {...(type === "password" && {secureTextEntry: true})}

@@ -13,7 +13,7 @@ const Login = () => {
   const authContext = useContext(AuthContext);
 
   return (
-    <SafeAreaView className="p-6">
+    <SafeAreaView className="px-6">
       <View className="h-full flex flex-col flex-nowrap justify-center items-stretch space-y-4">
         <View>
           <LLTextInput
