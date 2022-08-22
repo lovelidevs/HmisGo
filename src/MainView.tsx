@@ -44,7 +44,11 @@ const MainView = ({
     if (!auth?.realm) return;
 
     try {
-      const results = auth.realm.objects("client");
+      const results = auth.realm.objects("client").sorted([
+        ["lastName", false],
+        ["firstName", false],
+        ["alias", false],
+      ]);
       results.addListener(collection =>
         setClients([...(collection as unknown as Client[])]),
       );
