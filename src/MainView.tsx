@@ -19,24 +19,6 @@ import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
 import {RootStackParamList} from "./NavigationStack";
 
-// TODO: Submit, New Client, Log Out
-// TODO: Implement ActivityIndicators eventually
-// TODO: Add a menu button to the header
-
-const clientSchema = {
-  name: "client",
-  properties: {
-    _id: "objectId",
-    DOB: "string",
-    alias: "string?",
-    firstName: "string",
-    hmisID: "string?",
-    lastName: "string",
-    organization: "string",
-  },
-  primaryKey: "_id",
-};
-
 export type Client = {
   _id: ObjectId;
   organization: string;
@@ -50,52 +32,33 @@ export type Client = {
 const MainView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
-  const [realm, setRealm] = useState<Realm | null>(null);
   const [clientsCollection, setClientsCollection] =
     useState<Realm.Collection<Realm.Object> | null>(null);
+  const [clients, setClients] = useState<Client[] | null>(null);
 
   const auth = useContext(AuthContext);
 
   const menuButton = useRef<Button>(null);
 
   useEffect(() => {
-    (async () => {
-      if (!auth?.user || !auth.organization) return;
-
-      try {
-        setRealm(
-          await Realm.open({
-            schema: [clientSchema],
-            sync: {
-              user: auth.user,
-              partitionValue: auth.organization,
-            },
-          }),
-        );
-      } catch (error) {
-        Alert.alert("", String(error));
-      }
-    })();
-  }, [auth?.user, auth?.organization]);
-
-  useEffect(() => {
-    if (!realm) return;
+    if (!auth?.realm) return;
 
     try {
-      const results = realm.objects("client");
-      results.addListener(collection => setClientsCollection(collection));
+      const results = auth.realm.objects("client");
+      results.addListener(collection =>
+        setClients([...(collection as unknown as Client[])]),
+      );
       setClientsCollection(results);
     } catch (error) {
       Alert.alert("", String(error));
     }
-  }, [realm]);
+  }, [auth?.realm]);
 
   useEffect(() => {
     return () => {
-      if (realm) realm.close();
       if (clientsCollection) clientsCollection.removeAllListeners();
     };
-  }, [realm, clientsCollection]);
+  }, [clientsCollection]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -147,13 +110,15 @@ const MainView = ({
     });
   }, [navigation, auth]);
 
+  // TODO: Add ActivityIndicator
+
   return (
-    <SafeAreaView className="px-6">
+    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
       <ScrollView className="space-y-2">
-        {clientsCollection &&
-          clientsCollection.map(client => (
-            <View key={String((client as unknown as Client)._id)}>
-              <ClientLI client={client as unknown as Client} isActive={false} />
+        {clients &&
+          clients.map(client => (
+            <View key={String(client._id)}>
+              <ClientLI client={client} isActive={false} />
             </View>
           ))}
       </ScrollView>

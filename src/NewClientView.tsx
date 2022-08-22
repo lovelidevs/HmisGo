@@ -1,13 +1,17 @@
-import React, {useState} from "react";
-import {Button, View} from "react-native";
+import React, {useContext, useState} from "react";
+import {Alert, Button, Platform, View} from "react-native";
 
+import "react-native-get-random-values";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
+import {AuthContext} from "./Authentication/AuthProvider";
 import LLDateInput from "./LLComponents/LLDateInput";
 import LLTextInput from "./LLComponents/LLTextInput";
+import {Client} from "./MainView";
 import {RootStackParamList} from "./NavigationStack";
 
 dayjs.extend(utc);
@@ -17,14 +21,14 @@ const NewClientView = ({
 }: NativeStackScreenProps<RootStackParamList, "NewClient">) => {
   const [lastName, setLastName] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
-  const [dob, setDob] = useState<dayjs.Dayjs | null>(null);
+  const [DOB, setDOB] = useState<dayjs.Dayjs | null>(null);
   const [alias, setAlias] = useState<string>("");
   const [hmisID, setHmisID] = useState<string>("");
 
-  // TODO: Add confirm or cancel buttons
+  const auth = useContext(AuthContext);
 
   return (
-    <SafeAreaView className="px-6">
+    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
       <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2">
         <View>
           <LLTextInput
@@ -42,9 +46,9 @@ const NewClientView = ({
         </View>
         <View>
           <LLDateInput
-            value={dob}
-            onChange={(value: dayjs.Dayjs) => setDob(value)}
-            placeholder="DOB"
+            value={DOB}
+            onChange={(value: dayjs.Dayjs) => setDOB(value)}
+            placeholder="Date of Birth"
           />
         </View>
         <View>
@@ -62,7 +66,45 @@ const NewClientView = ({
           />
         </View>
         <View className="pt-4 flex flex-row flex-wrap justify-evenly items-center">
-          <Button title="SUBMIT" onPress={() => {}} />
+          <Button
+            title="SUBMIT"
+            onPress={() => {
+              if (!lastName) return Alert.alert("", "last name required");
+              if (!firstName) return Alert.alert("", "first name required");
+              if (!DOB) return Alert.alert("", "date of birth required");
+
+              if (!auth?.realm) return;
+
+              let properties: object = {
+                organization: auth.organization,
+                _id: new ObjectId(),
+                lastName: lastName.trim(),
+                firstName: firstName.trim(),
+                DOB: DOB.local().format("YYYY-MM-DD"),
+              };
+
+              if (alias) properties = {...properties, alias: alias.trim()};
+              if (hmisID) properties = {...properties, hmisID: hmisID.trim()};
+
+              try {
+                let clientObject: Realm.Object | undefined;
+                auth.realm.write(() => {
+                  clientObject = auth.realm?.create("client", properties);
+                });
+
+                if (clientObject) {
+                  const client = clientObject as unknown as Client;
+                  Alert.alert(
+                    "",
+                    `${client.firstName} ${client.lastName} added`,
+                    [{text: "OK", onPress: () => navigation.goBack()}],
+                  );
+                }
+              } catch (error) {
+                Alert.alert("", String(error));
+              }
+            }}
+          />
           <Button title="CANCEL" onPress={() => navigation.goBack()} />
         </View>
       </View>
