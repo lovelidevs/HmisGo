@@ -57,6 +57,38 @@ const location_cities_categories_locationsSchema = {
   },
 };
 
+const serviceSchema = {
+  name: "service",
+  properties: {
+    _id: "objectId",
+    categories: "service_categories[]",
+    organization: "string",
+  },
+  primaryKey: "_id",
+};
+
+const service_categoriesSchema = {
+  name: "service_categories",
+  embedded: true,
+  properties: {
+    category: "string",
+    services: "service_categories_services[]",
+    uuid: "string",
+  },
+};
+
+const service_categories_servicesSchema = {
+  name: "service_categories_services",
+  embedded: true,
+  properties: {
+    customList: "string[]",
+    inputType: "string",
+    service: "string",
+    units: "string?",
+    uuid: "string",
+  },
+};
+
 type UserCustomData = {
   _id: string;
   email: string;
@@ -110,6 +142,9 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
             location_citiesSchema,
             location_cities_categoriesSchema,
             location_cities_categories_locationsSchema,
+            serviceSchema,
+            service_categoriesSchema,
+            service_categories_servicesSchema,
           ],
           sync: {
             user: user,

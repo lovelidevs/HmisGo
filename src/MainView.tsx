@@ -11,53 +11,36 @@ import {
   View,
 } from "react-native";
 
-import {Picker} from "@react-native-picker/picker";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {ObjectId} from "bson";
+import dayjs from "dayjs";
 import {SafeAreaView} from "react-native-safe-area-context";
 import Realm from "realm";
-import {styled, useTailwind} from "tailwindcss-react-native";
+import {useTailwind} from "tailwindcss-react-native";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
+import {Service} from "./ClientServiceEditor/ClientServiceEditor";
+import LocationPickers, {LocationDocument} from "./LocationPickers";
 import {RootStackParamList} from "./NavigationStack";
+import {Client} from "./NewClientView";
 
-export type Client = {
+export type DailyList = {
   _id: ObjectId;
   organization: string;
-  lastName: string;
-  firstName: string;
-  DOB: string;
-  alias?: string;
-  hmisID?: string;
+  creator: string;
+  note: string[] | null;
+  contacts: Contact[] | null;
 };
 
-type LocationDocument = {
-  _id: ObjectId;
-  organization: string;
-  cities?: City[];
-};
-
-type City = {
-  uuid: string;
+export type Contact = {
+  clientId: ObjectId;
+  timestamp: dayjs.Dayjs;
   city: string;
-  categories?: LocationCategory[];
-};
-
-type LocationCategory = {
-  uuid: string;
-  category: string;
-  locations?: Location[];
-};
-
-type Location = {
-  uuid: string;
+  locationCategory: string;
   location: string;
-  places?: string[];
+  services: Service[] | null;
 };
-
-const StyledPicker = styled(Picker);
-const StyledPickerItem = styled(Picker.Item);
 
 const MainView = ({
   navigation,
@@ -171,9 +154,6 @@ const MainView = ({
   }, [navigation, auth]);
 
   // TODO: Change the clients into a flatlist
-  // TODO: Break out the location selects into their own component
-  // useTailwind instead of StyledPicker
-  // TODO: logout is still busted, but it works if I tap the screen. Doesn't make sense. Try on iOS, shows scroll wheel on login too
 
   if (!clients || !locations)
     return (
@@ -188,109 +168,15 @@ const MainView = ({
         contentContainerStyle={tw(
           "flex flex-col flex-nowrap justify-start items-stretch",
         )}>
-        <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-4">
-          <View className="rounded-lg border">
-            <StyledPicker
-              selectedValue={city}
-              onValueChange={itemValue => {
-                setCity(itemValue as string);
-                setLocationCategory("");
-                setLocation("");
-              }}
-              dropdownIconColor="black"
-              tw="text-black">
-              <StyledPickerItem
-                key=""
-                label={city ? "" : "SELECT CITY"}
-                value={""}
-              />
-              {locations.cities?.map(value => (
-                <StyledPickerItem
-                  key={value.uuid}
-                  label={value.city}
-                  value={value.uuid}
-                />
-              ))}
-            </StyledPicker>
-          </View>
-          <View className="rounded-lg border">
-            <StyledPicker
-              selectedValue={locationCategory}
-              onValueChange={itemValue => {
-                setLocationCategory(itemValue as string);
-                setLocation("");
-              }}
-              dropdownIconColor="black"
-              tw="text-black">
-              <StyledPickerItem
-                key=""
-                label={locationCategory ? "" : "SELECT LOCATION CATEGORY"}
-                value={""}
-              />
-              {(() => {
-                const tempCity = locations.cities?.find(
-                  value => value.uuid === city,
-                );
-                if (!tempCity) return;
-
-                return tempCity.categories?.map(value => (
-                  <StyledPickerItem
-                    key={value.uuid}
-                    label={value.category}
-                    value={value.uuid}
-                  />
-                ));
-              })()}
-            </StyledPicker>
-          </View>
-          <View className="rounded-lg border">
-            <StyledPicker
-              selectedValue={location}
-              onValueChange={itemValue => setLocation(itemValue as string)}
-              dropdownIconColor="black"
-              tw="text-black">
-              <StyledPickerItem
-                key=""
-                label={location ? "" : "SELECT LOCATION"}
-                value={""}
-              />
-              {(() => {
-                const tempCity = locations.cities?.find(
-                  value => value.uuid === city,
-                );
-                if (!tempCity) return;
-
-                const tempCategories = tempCity.categories?.find(
-                  value => value.uuid === locationCategory,
-                );
-                if (!tempCategories) return;
-
-                return tempCategories.locations?.map(value => {
-                  const items = [
-                    <StyledPickerItem
-                      key={value.uuid}
-                      label={value.location}
-                      value={value.location}
-                    />,
-                  ];
-
-                  if (!value.places) return items;
-
-                  for (const place of value.places)
-                    items.push(
-                      <StyledPickerItem
-                        key={value.uuid + place}
-                        label={value.location + ": " + place}
-                        value={value.location + ": " + place}
-                      />,
-                    );
-
-                  return items;
-                });
-              })()}
-            </StyledPicker>
-          </View>
-        </View>
+        <LocationPickers
+          value={{city, locationCategory, location}}
+          onChange={value => {
+            setCity(value.city);
+            setLocationCategory(value.locationCategory);
+            setLocation(value.location);
+          }}
+          locations={locations}
+        />
         <View className="space-y-2 mt-4">
           {clients &&
             clients.map(client => (

@@ -5,15 +5,23 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
-import MainView from "./MainView";
+import {ServiceDocument} from "./ClientServiceEditor/ClientServiceEditor";
+import ClientServiceNavigator from "./ClientServiceEditor/ClientServiceNavigator";
+import {LocationDocument} from "./LocationPickers";
+import MainView, {Contact} from "./MainView";
 import NewClientView from "./NewClientView";
-
-// TODO: https://reactnavigation.org/docs/auth-flow/#how-it-will-work
 
 export type RootStackParamList = {
   HmisGo: undefined;
   NewClient: undefined;
   Login: undefined;
+  ClientServiceNavigator: undefined;
+  ServiceEditor: {
+    contact: Contact;
+    onChange: (contactClone: Contact) => void;
+    services: ServiceDocument;
+    locations: LocationDocument;
+  };
 };
 
 const NavigationStack = () => {
@@ -40,6 +48,11 @@ const NavigationStack = () => {
               name="NewClient"
               component={NewClientView}
               options={{title: "New Client", presentation: "modal"}}
+            />
+            <Stack.Screen
+              name="ClientServiceNavigator"
+              component={ClientServiceNavigator}
+              options={{headerShown: false, presentation: "modal"}}
             />
           </>
         ) : (

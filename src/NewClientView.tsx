@@ -11,10 +11,19 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {AuthContext} from "./Authentication/AuthProvider";
 import LLDateInput from "./LLComponents/LLDateInput";
 import LLTextInput from "./LLComponents/LLTextInput";
-import {Client} from "./MainView";
 import {RootStackParamList} from "./NavigationStack";
 
 dayjs.extend(utc);
+
+export type Client = {
+  _id: ObjectId;
+  organization: string;
+  lastName: string;
+  firstName: string;
+  DOB: string;
+  alias?: string;
+  hmisID?: string;
+};
 
 const NewClientView = ({
   navigation,
