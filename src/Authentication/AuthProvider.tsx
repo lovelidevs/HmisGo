@@ -17,6 +17,46 @@ const clientSchema = {
   primaryKey: "_id",
 };
 
+const locationSchema = {
+  name: "location",
+  properties: {
+    _id: "objectId",
+    cities: "location_cities[]",
+    organization: "string",
+  },
+  primaryKey: "_id",
+};
+
+const location_citiesSchema = {
+  name: "location_cities",
+  embedded: true,
+  properties: {
+    categories: "location_cities_categories[]",
+    city: "string",
+    uuid: "string",
+  },
+};
+
+const location_cities_categoriesSchema = {
+  name: "location_cities_categories",
+  embedded: true,
+  properties: {
+    category: "string",
+    locations: "location_cities_categories_locations[]",
+    uuid: "string",
+  },
+};
+
+const location_cities_categories_locationsSchema = {
+  name: "location_cities_categories_locations",
+  embedded: true,
+  properties: {
+    location: "string",
+    places: "string[]",
+    uuid: "string",
+  },
+};
+
 type UserCustomData = {
   _id: string;
   email: string;
@@ -48,38 +88,41 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
   useEffect(() => {
     (async () => {
-      if (!user) return;
+      if (!user) {
+        realm?.close();
+        setRealm(null);
+        return;
+      }
 
       const organization = (user.customData as UserCustomData).organization;
-
-      if (!organization) return;
+      if (!organization) {
+        realm?.close();
+        setRealm(null);
+        return;
+      }
 
       try {
         if (realm) realm.close();
-        setRealm(
-          await Realm.open({
-            schema: [clientSchema],
-            sync: {
-              user: user,
-              partitionValue: organization,
-            },
-          }),
-        );
+        const result = await Realm.open({
+          schema: [
+            clientSchema,
+            locationSchema,
+            location_citiesSchema,
+            location_cities_categoriesSchema,
+            location_cities_categories_locationsSchema,
+          ],
+          sync: {
+            user: user,
+            partitionValue: organization,
+          },
+        });
+        setRealm(result);
       } catch (error) {
         Alert.alert("", String(error));
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
-
-  useEffect(() => {
-    return () => {
-      if (realm) {
-        realm.close();
-        setRealm(null);
-      }
-    };
-  }, [realm]);
 
   const logIn = async (email: string, password: string) => {
     try {
