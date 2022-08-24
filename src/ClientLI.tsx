@@ -3,7 +3,7 @@ import {Text, View} from "react-native";
 
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import {Client} from "./MainView";
+import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
   let result = client.lastName + " " + client.firstName;
@@ -16,10 +16,22 @@ const clientToString = (client: Client) => {
 
 // TODO: Eventually disableBuiltInState of the checkbox
 
-const ClientLI = ({client, isActive}: {client: Client; isActive: boolean}) => {
+const ClientLI = ({
+  client,
+  isChecked,
+  onPress,
+}: {
+  client: Client;
+  isChecked: boolean;
+  onPress: (checked: boolean) => void;
+}) => {
   return (
     <View className="flex flex-row flex-nowrap justify-start items-center">
-      <BouncyCheckbox isChecked={isActive} />
+      <BouncyCheckbox
+        disableBuiltInState={true}
+        isChecked={isChecked}
+        onPress={onPress}
+      />
       <Text className="text-black">{clientToString(client)}</Text>
     </View>
   );

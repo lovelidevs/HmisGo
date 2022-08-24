@@ -102,6 +102,7 @@ type AuthContextType = {
   logOut: () => Promise<void>;
   isAuthenticated: boolean;
   user: Realm.User | null;
+  email: string | null;
   organization: string | null;
   role: string | null;
   status: string | null;
@@ -181,6 +182,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         logOut,
         isAuthenticated: user !== null,
         user,
+        email: user ? (user.customData as UserCustomData).email : null,
         organization: user
           ? (user.customData as UserCustomData).organization
           : null,

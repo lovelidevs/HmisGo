@@ -6,16 +6,19 @@ const LLTextInput = ({
   onChange,
   placeholder,
   type,
+  multiline,
   twStyles,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   type?: string;
+  multiline?: boolean;
   twStyles?: string;
 }) => {
   return (
     <TextInput
+      multiline={multiline}
       placeholder={placeholder}
       placeholderTextColor="lightgrey"
       value={value}

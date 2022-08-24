@@ -14,6 +14,8 @@ import {
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {ObjectId} from "bson";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 import Realm from "realm";
 import {useTailwind} from "tailwindcss-react-native";
@@ -21,16 +23,20 @@ import {useTailwind} from "tailwindcss-react-native";
 import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
 import {Service} from "./ClientServiceEditor/ClientServiceEditor";
+import LLTextInput from "./LLComponents/LLTextInput";
 import LocationPickers, {LocationDocument} from "./LocationPickers";
 import {RootStackParamList} from "./NavigationStack";
 import {Client} from "./NewClientView";
+
+dayjs.extend(utc);
 
 export type DailyList = {
   _id: ObjectId;
   organization: string;
   creator: string;
-  note: string[] | null;
-  contacts: Contact[] | null;
+  timestamp: dayjs.Dayjs;
+  note: string[];
+  contacts: Contact[];
 };
 
 export type Contact = {
@@ -46,6 +52,7 @@ const MainView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
   const tw = useTailwind();
+  const auth = useContext(AuthContext);
 
   const [clients, setClients] = useState<Client[] | null>(null);
 
@@ -60,7 +67,14 @@ const MainView = ({
     null,
   );
 
-  const auth = useContext(AuthContext);
+  const [dailyList, setDailyList] = useState<DailyList>({
+    _id: new ObjectId(),
+    organization: auth?.organization ? auth.organization : "",
+    creator: auth?.email ? auth.email.split("@")[0] : "",
+    timestamp: dayjs.utc(),
+    note: [""],
+    contacts: [],
+  });
 
   const menuButton = useRef<Button>(null);
 
@@ -162,12 +176,53 @@ const MainView = ({
       </SafeAreaView>
     );
 
+  const clientMapFn = (client: Client, isChecked: boolean) => (
+    <View key={String(client._id)}>
+      <ClientLI
+        client={client}
+        isChecked={isChecked}
+        onPress={() => {
+          const dailyListClone = cloneDeep(dailyList);
+          const contacts = dailyListClone.contacts;
+
+          if (isChecked) {
+            const index = contacts.findIndex(
+              contact => contact.clientId === client._id,
+            );
+            contacts.splice(index, 1);
+          } else
+            contacts.push({
+              clientId: client._id,
+              timestamp: dayjs.utc(),
+              city,
+              locationCategory,
+              location,
+              services: null,
+            });
+
+          setDailyList(dailyListClone);
+        }}
+      />
+    </View>
+  );
+
   return (
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
       <ScrollView
         contentContainerStyle={tw(
           "flex flex-col flex-nowrap justify-start items-stretch",
         )}>
+        <LLTextInput
+          value={dailyList.note.join("\n")}
+          onChange={value => {
+            const dailyListClone = cloneDeep(dailyList);
+            dailyListClone.note = value.split("\n");
+            setDailyList(dailyListClone);
+          }}
+          placeholder="NOTES"
+          multiline={true}
+          twStyles="mb-4"
+        />
         <LocationPickers
           value={{city, locationCategory, location}}
           onChange={value => {
@@ -177,13 +232,35 @@ const MainView = ({
           }}
           locations={locations}
         />
-        <View className="space-y-2 mt-4">
-          {clients &&
-            clients.map(client => (
-              <View key={String(client._id)}>
-                <ClientLI client={client} isActive={false} />
-              </View>
-            ))}
+        <View className="space-y-4 my-6">
+          {(() => {
+            const selectedClients = [];
+            const unselectedClients = [];
+
+            const contactIds = [];
+            for (const contact of dailyList.contacts)
+              contactIds.push(contact.clientId);
+
+            for (const client of clients)
+              if (contactIds.includes(client._id)) selectedClients.push(client);
+              else unselectedClients.push(client);
+
+            selectedClients.sort((a, b) => {
+              return (a.lastName + a.firstName + a.alias + a.hmisID)
+                .toLowerCase()
+                .localeCompare(
+                  (b.lastName + b.firstName + b.alias + b.hmisID).toLowerCase(),
+                );
+            });
+
+            selectedClients.map(client => clientMapFn(client, true));
+            unselectedClients.map(client => clientMapFn(client, false));
+
+            return [
+              selectedClients.map(client => clientMapFn(client, true)),
+              unselectedClients.map(client => clientMapFn(client, false)),
+            ];
+          })()}
         </View>
       </ScrollView>
     </SafeAreaView>

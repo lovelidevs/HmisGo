@@ -45,8 +45,8 @@ const LocationPickers = ({
   locations: LocationDocument;
 }) => {
   const tw = useTailwind();
-  const viewStyle = tw("rounded-lg border");
-  const pickerStyle = tw("text-black");
+  const viewStyle = tw("rounded-lg border overflow-hidden");
+  const pickerStyle = tw("text-black bg-white");
 
   return (
     <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-4">
