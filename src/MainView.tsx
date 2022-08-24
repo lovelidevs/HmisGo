@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useRef, useState} from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
-  Alert,
   Button,
   findNodeHandle,
   Platform,
@@ -17,21 +16,21 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
-import Realm from "realm";
 import {useTailwind} from "tailwindcss-react-native";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
 import {Service} from "./ClientServiceEditor/ClientServiceEditor";
 import LLTextInput from "./LLComponents/LLTextInput";
-import LocationPickers, {LocationDocument} from "./LocationPickers";
+import LocationPickers from "./LocationPickers";
 import {RootStackParamList} from "./NavigationStack";
 import {Client} from "./NewClientView";
+import {RealmStateContext} from "./RealmStateProvider";
 
 dayjs.extend(utc);
 
 export type DailyList = {
-  _id: ObjectId;
+  _idAsString: string; // Cannot pass ObjectId as route param
   organization: string;
   creator: string;
   timestamp: dayjs.Dayjs;
@@ -40,8 +39,8 @@ export type DailyList = {
 };
 
 export type Contact = {
-  clientId: ObjectId;
-  timestamp: dayjs.Dayjs;
+  clientIdAsString: string; // Cannot pass ObjectId as route param
+  timestamp: string;
   city: string;
   locationCategory: string;
   location: string;
@@ -52,23 +51,18 @@ const MainView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
   const tw = useTailwind();
+
   const auth = useContext(AuthContext);
+  const realmState = useContext(RealmStateContext);
 
-  const [clients, setClients] = useState<Client[] | null>(null);
-
-  const [locations, setLocations] = useState<LocationDocument | null>(null);
+  console.log(realmState?.locations);
 
   const [city, setCity] = useState<string>("");
   const [locationCategory, setLocationCategory] = useState<string>("");
   const [location, setLocation] = useState<string>("");
 
-  const clientsCollection = useRef<Realm.Collection<Realm.Object> | null>(null);
-  const locationsCollection = useRef<Realm.Collection<Realm.Object> | null>(
-    null,
-  );
-
   const [dailyList, setDailyList] = useState<DailyList>({
-    _id: new ObjectId(),
+    _idAsString: new ObjectId().toString(),
     organization: auth?.organization ? auth.organization : "",
     creator: auth?.email ? auth.email.split("@")[0] : "",
     timestamp: dayjs.utc(),
@@ -77,45 +71,6 @@ const MainView = ({
   });
 
   const menuButton = useRef<Button>(null);
-
-  useEffect(() => {
-    if (!auth?.realm) return;
-
-    try {
-      const results = auth.realm.objects("client").sorted([
-        ["lastName", false],
-        ["firstName", false],
-        ["alias", false],
-      ]);
-
-      results.addListener(collection => {
-        setClients(JSON.parse(JSON.stringify(collection)));
-      });
-
-      clientsCollection.current = results;
-    } catch (error) {
-      Alert.alert("", String(error));
-    }
-
-    try {
-      const results = auth.realm.objects("location");
-
-      results.addListener(collection => {
-        setLocations(JSON.parse(JSON.stringify(collection))[0]);
-      });
-
-      locationsCollection.current = results;
-    } catch (error) {
-      Alert.alert("", String(error));
-    }
-
-    return () => {
-      if (clientsCollection.current)
-        clientsCollection.current.removeAllListeners();
-      if (locationsCollection.current)
-        locationsCollection.current.removeAllListeners();
-    };
-  }, [auth?.realm]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -169,42 +124,58 @@ const MainView = ({
 
   // TODO: Change the clients into a flatlist
 
-  if (!clients || !locations)
+  const clientMapFn = (client: Client, isChecked: boolean) => {
+    return (
+      <View key={String(client._id)}>
+        <ClientLI
+          client={client}
+          isChecked={isChecked}
+          onPress={() => {
+            const dailyListClone = cloneDeep(dailyList);
+            const contacts = dailyListClone.contacts;
+
+            if (isChecked) {
+              const index = contacts.findIndex(
+                contact => contact.clientIdAsString === client._id.toString(),
+              );
+              contacts.splice(index, 1);
+            } else
+              contacts.push({
+                clientIdAsString: client._id.toString(),
+                timestamp: dayjs.utc().toISOString(),
+                city,
+                locationCategory,
+                location,
+                services: null,
+              });
+
+            setDailyList(dailyListClone);
+          }}
+          contact={
+            isChecked
+              ? dailyList.contacts.find(
+                  contact => contact.clientIdAsString === client._id.toString(),
+                )
+              : undefined
+          }
+          dailyListIdAsString={dailyList._idAsString}
+          navigation={isChecked ? navigation : undefined}
+        />
+      </View>
+    );
+  };
+
+  if (
+    !realmState ||
+    !realmState.clients ||
+    !realmState.locations ||
+    !realmState.services
+  )
     return (
       <SafeAreaView className="h-full flex flex-col flex-nowrap justify-center items-center">
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
-
-  const clientMapFn = (client: Client, isChecked: boolean) => (
-    <View key={String(client._id)}>
-      <ClientLI
-        client={client}
-        isChecked={isChecked}
-        onPress={() => {
-          const dailyListClone = cloneDeep(dailyList);
-          const contacts = dailyListClone.contacts;
-
-          if (isChecked) {
-            const index = contacts.findIndex(
-              contact => contact.clientId === client._id,
-            );
-            contacts.splice(index, 1);
-          } else
-            contacts.push({
-              clientId: client._id,
-              timestamp: dayjs.utc(),
-              city,
-              locationCategory,
-              location,
-              services: null,
-            });
-
-          setDailyList(dailyListClone);
-        }}
-      />
-    </View>
-  );
 
   return (
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
@@ -230,7 +201,7 @@ const MainView = ({
             setLocationCategory(value.locationCategory);
             setLocation(value.location);
           }}
-          locations={locations}
+          locations={realmState.locations}
         />
         <View className="space-y-4 my-6">
           {(() => {
@@ -239,10 +210,11 @@ const MainView = ({
 
             const contactIds = [];
             for (const contact of dailyList.contacts)
-              contactIds.push(contact.clientId);
+              contactIds.push(contact.clientIdAsString);
 
-            for (const client of clients)
-              if (contactIds.includes(client._id)) selectedClients.push(client);
+            for (const client of realmState.clients)
+              if (contactIds.includes(client._id.toString()))
+                selectedClients.push(client);
               else unselectedClients.push(client);
 
             selectedClients.sort((a, b) => {

@@ -1,8 +1,11 @@
 import React from "react";
-import {Text, View} from "react-native";
+import {Button, Text, View} from "react-native";
 
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
+import {Contact} from "./MainView";
+import {RootStackParamList} from "./NavigationStack";
 import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
@@ -20,10 +23,20 @@ const ClientLI = ({
   client,
   isChecked,
   onPress,
+  contact,
+  dailyListIdAsString,
+  navigation,
 }: {
   client: Client;
   isChecked: boolean;
   onPress: (checked: boolean) => void;
+  contact?: Contact;
+  dailyListIdAsString?: string;
+  navigation?: NativeStackNavigationProp<
+    RootStackParamList,
+    "HmisGo",
+    undefined
+  >;
 }) => {
   return (
     <View className="flex flex-row flex-nowrap justify-start items-center">
@@ -33,6 +46,22 @@ const ClientLI = ({
         onPress={onPress}
       />
       <Text className="text-black">{clientToString(client)}</Text>
+      {isChecked && contact && dailyListIdAsString && (
+        <View className="ml-4">
+          <Button
+            title="+/-"
+            onPress={() => {
+              navigation?.navigate("ClientServiceNavigator", {
+                screen: "ServiceEditor",
+                params: {
+                  contact,
+                  dailyListIdAsString: dailyListIdAsString,
+                },
+              });
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };
