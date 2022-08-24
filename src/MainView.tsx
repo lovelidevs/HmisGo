@@ -253,9 +253,6 @@ const MainView = ({
                 );
             });
 
-            selectedClients.map(client => clientMapFn(client, true));
-            unselectedClients.map(client => clientMapFn(client, false));
-
             return [
               selectedClients.map(client => clientMapFn(client, true)),
               unselectedClients.map(client => clientMapFn(client, false)),
