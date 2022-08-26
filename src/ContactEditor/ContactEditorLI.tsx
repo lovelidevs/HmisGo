@@ -15,38 +15,36 @@ const ContactEditorLI = ({
   label,
   onPress,
   inputType,
+  toggleValue,
+  onToggleChange,
   count,
-  units,
   onCountChange,
 }: {
   label: string;
   onPress?: () => void;
   inputType?: string;
+  toggleValue?: boolean;
+  onToggleChange?: (value: boolean) => void;
   count?: number;
   onCountChange?: (count: number) => void;
-  units?: string;
 }) => {
   return (
     <Pressable onPress={onPress}>
-      <View className="flex flex-row flex-nowrap justify-between items-center rounded-lg border p-4 bg-orange-200 space-x-12">
+      <View className="flex flex-row flex-nowrap justify-between items-center rounded-lg border p-4 bg-orange-200 space-x-2">
         <Text className="shrink text-lg text-black">{label}</Text>
         {(() => {
           if (inputType === InputType.TOGGLE)
             return (
-              <Switch
-                value={false}
-                onValueChange={value => console.log(value)}
-              />
+              <Switch value={toggleValue} onValueChange={onToggleChange} />
             );
 
-          if (inputType === InputType.COUNTER && count && onCountChange)
+          if (
+            inputType === InputType.COUNTER &&
+            count !== undefined &&
+            onCountChange
+          )
             return (
-              <View className="flex flex-col flex-nowrap justify-start items-center">
-                {units && (
-                  <Text className="text-base text-black mb-2 font-bold">
-                    {units + ":"}
-                  </Text>
-                )}
+              <View>
                 <LLNumberInput value={count} onChange={onCountChange} />
               </View>
             );

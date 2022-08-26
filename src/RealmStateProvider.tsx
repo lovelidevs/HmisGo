@@ -41,7 +41,8 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
         let collection = auth?.realm?.objects(objectType);
 
         if (!collection)
-          return console.log(
+          return Alert.alert(
+            "",
             `Realm Error: Unable to query objects of type ${objectType}`,
           );
 

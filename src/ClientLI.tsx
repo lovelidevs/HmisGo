@@ -36,16 +36,18 @@ const servicesToString = (services: ContactService[]) => {
 
     if (service.count || service.list)
       text +=
-        "(" +
-        (service.count && service.count + " " + service.units) +
-        (service.count && service.list && " ") +
-        service.list?.join(", ") +
+        " (" +
+        ((): string => {
+          if (service.count) return service.count + " " + service.units;
+          if (service.list) return service.list.join(", ");
+          return "";
+        })() +
         ")";
 
     result.push(text);
   }
 
-  return result;
+  return result.join(", ");
 };
 
 const ClientLI = ({
@@ -68,16 +70,16 @@ const ClientLI = ({
         isChecked={isChecked}
         onPress={onCheckboxPress}
       />
-      <View className="flex flex-col col-nowrap justify-start items-start">
-        <Text className="text-base text-black">{clientToString(client)}</Text>
+      <View className="shrink flex flex-col col-nowrap justify-start items-start">
+        <Text className={`text-base text-black ${isChecked && "font-bold"}`}>
+          {clientToString(client)}
+        </Text>
         {isChecked && contact && onEditPress && (
-          <View className="rounded-lg border bg-white p-1">
-            <Text
-              className="text-base text-black"
-              onPress={() => onEditPress(contact.clientIdAsString)}>
-              {contactToString(contact)}
-            </Text>
-          </View>
+          <Text
+            className="shrink text-base text-black border border-orange-300 rounded-lg bg-white p-2 mt-1"
+            onPress={() => onEditPress(contact.clientIdAsString)}>
+            {contactToString(contact)}
+          </Text>
         )}
       </View>
     </View>

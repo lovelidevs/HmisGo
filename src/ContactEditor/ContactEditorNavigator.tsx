@@ -29,7 +29,7 @@ import ContactEditor from "./ContactEditor";
 export type ContactEditorStackParamList = {
   ContactEditor: undefined;
   CategoryEditor: {categoryUUID: string};
-  ServiceEditor: undefined;
+  ServiceEditor: {serviceUUID: string; categoryUUID: string};
 };
 
 type ContactEditorContextType = {

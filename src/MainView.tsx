@@ -215,14 +215,6 @@ const MainView = ({
                 selectedClients.push(client);
               else unselectedClients.push(client);
 
-            selectedClients.sort((a, b) => {
-              return (a.lastName + a.firstName + a.alias + a.hmisID)
-                .toLowerCase()
-                .localeCompare(
-                  (b.lastName + b.firstName + b.alias + b.hmisID).toLowerCase(),
-                );
-            });
-
             return [
               selectedClients.map(client => clientMapFn(client, true)),
               unselectedClients.map(client => clientMapFn(client, false)),

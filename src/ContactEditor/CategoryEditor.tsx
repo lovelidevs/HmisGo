@@ -36,44 +36,85 @@ const CategoryEditor = ({
 
     navigation.setOptions({title: result.category});
     setCategory(result);
-    console.log(result);
   }, [category, realmState?.services, categoryUUID, navigation]);
 
   if (!category || !editorContext?.contact) return <LLActivityIndicatorView />;
 
-  const updateCount = (
-    services: ContactService[] | null,
+  const toggleProps = (
     service: Service,
-    count: number,
-  ): ContactService[] => {
-    const servicesClone = cloneDeep(services);
+  ): {
+    toggleValue: boolean;
+    onToggleChange: (value: any) => void;
+  } => {
+    return {
+      toggleValue: (() => {
+        const contactService = editorContext?.contact?.services?.find(
+          serv => serv.uuid === service.uuid,
+        );
 
-    const contactService: ContactService = {
-      uuid: service.uuid,
-      service: service.service,
-      count,
-      units: service.units ? service.units : undefined,
+        if (contactService) return true;
+        return false;
+      })(),
+      onToggleChange: value => {
+        const contactClone = cloneDeep(editorContext.contact);
+
+        if (!contactClone) return;
+
+        if (value)
+          contactClone.services.push({
+            uuid: service.uuid,
+            service: service.service,
+          });
+        else {
+          const index = contactClone.services.findIndex(
+            serv => serv.uuid === service.uuid,
+          );
+
+          if (index >= 0) contactClone.services.splice(index, 1);
+        }
+
+        editorContext.setContact(contactClone);
+      },
     };
+  };
 
-    if (!servicesClone)
-      if (count <= 0) return [];
-      else return [contactService];
+  const counterProps = (
+    service: Service,
+  ): {count: number; onCountChange: (count: number) => void} => {
+    return {
+      count: (() => {
+        const count = editorContext?.contact?.services?.find(
+          serv => serv.uuid === service.uuid,
+        )?.count;
 
-    const index = servicesClone.findIndex(serv => serv.uuid === service.uuid);
+        if (!count) return 0;
 
-    if (index >= 0)
-      if (count <= 0) {
-        servicesClone.splice(index, 1);
-        return servicesClone;
-      } else {
-        servicesClone[index] = contactService;
-        return servicesClone;
-      }
-    else if (count <= 0) return servicesClone;
-    else {
-      servicesClone.push(contactService);
-      return servicesClone;
-    }
+        return count;
+      })(),
+      onCountChange: (count: number) => {
+        const contactClone = cloneDeep(editorContext.contact);
+
+        if (!contactClone) return;
+
+        const contactService: ContactService = {
+          uuid: service.uuid,
+          service: service.service,
+          count,
+          units: service.units ? service.units : undefined,
+        };
+
+        const index = contactClone.services.findIndex(
+          serv => serv.uuid === service.uuid,
+        );
+
+        if (index >= 0)
+          if (count <= 0) contactClone.services.splice(index, 1);
+          else contactClone.services[index] = contactService;
+        else if (count > 0) contactClone.services.push(contactService);
+
+        editorContext.setContact(contactClone);
+      },
+    };
   };
 
   return (
@@ -86,33 +127,14 @@ const CategoryEditor = ({
                 <ContactEditorLI
                   label={service.service}
                   inputType={service.inputType}
-                  count={
-                    service.inputType === InputType.COUNTER
-                      ? (() => {
-                          const result = editorContext?.contact?.services?.find(
-                            serv => serv.uuid === service.uuid,
-                          )?.count;
-
-                          if (!result) return 0;
-
-                          return result;
-                        })()
-                      : undefined
-                  }
-                  onCountChange={count => {
-                    const contactClone = cloneDeep(editorContext.contact);
-
-                    if (!contactClone) return;
-
-                    contactClone.services = updateCount(
-                      contactClone.services,
-                      service,
-                      count,
-                    );
-
-                    editorContext.setContact(contactClone);
-                  }}
-                  units={service.units ? service.units : undefined}
+                  {...(() => {
+                    switch (service.inputType) {
+                      case InputType.TOGGLE:
+                        return toggleProps(service);
+                      case InputType.COUNTER:
+                        return counterProps(service);
+                    }
+                  })()}
                 />
               </View>
             ))}
