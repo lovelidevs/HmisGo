@@ -2,14 +2,17 @@ import React, {ReactNode, useContext, useEffect, useState} from "react";
 import {Alert} from "react-native";
 
 import {AuthContext} from "./Authentication/AuthProvider";
-import {ServiceDocument} from "./ClientServiceEditor/ClientServiceEditor";
+import {ServiceDocument} from "./ContactEditor/ContactEditor";
 import {LocationDocument} from "./LocationPickers";
+import {DailyList} from "./MainView";
 import {Client} from "./NewClientView";
 
 type RealmStateType = {
   clients: Client[] | null;
   locations: LocationDocument | null;
   services: ServiceDocument | null;
+  dailyList: DailyList | null;
+  setDailyList: React.Dispatch<React.SetStateAction<DailyList | null>>;
 };
 
 export const RealmStateContext = React.createContext<RealmStateType | null>(
@@ -22,6 +25,8 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
   const [clients, setClients] = useState<Client[] | null>(null);
   const [locations, setLocations] = useState<LocationDocument | null>(null);
   const [services, setServices] = useState<ServiceDocument | null>(null);
+
+  const [dailyList, setDailyList] = useState<DailyList | null>(null);
 
   useEffect(() => {
     if (!auth?.realm) return;
@@ -76,7 +81,8 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
   }, [auth?.realm]);
 
   return (
-    <RealmStateContext.Provider value={{clients, locations, services}}>
+    <RealmStateContext.Provider
+      value={{clients, locations, services, dailyList, setDailyList}}>
       {children}
     </RealmStateContext.Provider>
   );

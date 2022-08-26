@@ -1,11 +1,11 @@
 import React from "react";
-import {Button, Text, View} from "react-native";
+import {Text, View} from "react-native";
 
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import dayjs from "dayjs";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
+import {ContactService} from "./ContactEditor/ContactEditor";
 import {Contact} from "./MainView";
-import {RootStackParamList} from "./NavigationStack";
 import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
@@ -17,51 +17,69 @@ const clientToString = (client: Client) => {
   return result;
 };
 
-// TODO: Eventually disableBuiltInState of the checkbox
+const contactToString = (contact: Contact) => {
+  let result =
+    dayjs(contact.timestampAsString).format("h:mm A") +
+    (contact.locationCategory && " @ " + contact.location);
+
+  if (contact.services.length > 0)
+    result += "\n" + servicesToString(contact.services);
+
+  return result;
+};
+
+const servicesToString = (services: ContactService[]) => {
+  const result: string[] = [];
+
+  for (const service of services) {
+    let text = service.service;
+
+    if (service.count || service.list)
+      text +=
+        "(" +
+        (service.count && service.count + " " + service.units) +
+        (service.count && service.list && " ") +
+        service.list?.join(", ") +
+        ")";
+
+    result.push(text);
+  }
+
+  return result;
+};
 
 const ClientLI = ({
   client,
   isChecked,
-  onPress,
+  onCheckboxPress,
   contact,
-  dailyListIdAsString,
-  navigation,
+  onEditPress,
 }: {
   client: Client;
   isChecked: boolean;
-  onPress: (checked: boolean) => void;
+  onCheckboxPress: (checked: boolean) => void;
   contact?: Contact;
-  dailyListIdAsString?: string;
-  navigation?: NativeStackNavigationProp<
-    RootStackParamList,
-    "HmisGo",
-    undefined
-  >;
+  onEditPress?: (contactClientIdAsString: string) => void;
 }) => {
   return (
     <View className="flex flex-row flex-nowrap justify-start items-center">
       <BouncyCheckbox
         disableBuiltInState={true}
         isChecked={isChecked}
-        onPress={onPress}
+        onPress={onCheckboxPress}
       />
-      <Text className="text-black">{clientToString(client)}</Text>
-      {isChecked && contact && dailyListIdAsString && (
-        <View className="ml-4">
-          <Button
-            title="+/-"
-            onPress={() => {
-              navigation?.navigate("ClientServiceNavigator", {
-                screen: "ServiceEditor",
-                params: {
-                  contact,
-                  dailyListIdAsString: dailyListIdAsString,
-                },
-              });
-            }}
-          />
-        </View>
-      )}
+      <View className="flex flex-col col-nowrap justify-start items-start">
+        <Text className="text-base text-black">{clientToString(client)}</Text>
+        {isChecked && contact && onEditPress && (
+          <View className="rounded-lg border bg-white p-1">
+            <Text
+              className="text-base text-black"
+              onPress={() => onEditPress(contact.clientIdAsString)}>
+              {contactToString(contact)}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 };

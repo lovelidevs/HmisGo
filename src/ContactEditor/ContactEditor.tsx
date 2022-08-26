@@ -1,11 +1,5 @@
 import React, {useContext} from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import {Platform, ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {ObjectId} from "bson";
@@ -13,9 +7,22 @@ import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
+import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LocationPickers from "../LocationPickers";
 import {RealmStateContext} from "../RealmStateProvider";
-import {ClientServiceStackParamList} from "./ClientServiceNavigator";
+import ContactEditorLI from "./ContactEditorLI";
+import {
+  ContactEditorContext,
+  ContactEditorStackParamList,
+} from "./ContactEditorNavigator";
+
+export type ContactService = {
+  uuid: string;
+  service: string;
+  count?: number;
+  units?: string;
+  list?: string[];
+};
 
 export type ServiceDocument = {
   _id: ObjectId;
@@ -37,31 +44,21 @@ export type Service = {
   customList: string[] | null;
 };
 
-// TODO: Clicking the CHECK button in the header submits it, or maybe on dismount? Will have to make sure it doesn't hurt to override the same data
-// TODO: Back button should submit too
-
-const ClientServiceEditor = ({
-  route,
+const ContactEditor = ({
   navigation,
-}: NativeStackScreenProps<ClientServiceStackParamList, "ServiceEditor">) => {
+}: NativeStackScreenProps<ContactEditorStackParamList, "ContactEditor">) => {
   const tw = useTailwind();
 
-  const {contact, dailyListIdAsString} = route.params;
   const realmState = useContext(RealmStateContext);
-
-  console.log(dailyListIdAsString);
+  const editorContext = useContext(ContactEditorContext);
 
   if (
-    !realmState ||
-    !realmState.clients ||
-    !realmState.locations ||
-    !realmState.services
+    !realmState?.clients ||
+    !realmState?.locations ||
+    !realmState?.services ||
+    !editorContext?.contact
   )
-    return (
-      <SafeAreaView className="h-full flex flex-col flex-nowrap justify-center items-center">
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
+    return <LLActivityIndicatorView />;
 
   return (
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
@@ -72,9 +69,13 @@ const ClientServiceEditor = ({
         <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6">
           <Text className="text-xl text-black font-bold">
             {(() => {
-              const client = realmState.clients.find(
-                value => value._id.toString() === contact.clientIdAsString,
-              );
+              const client = realmState.clients.find(value => {
+                if (!editorContext.contact) return;
+                return (
+                  value._id.toString() ===
+                  editorContext.contact.clientIdAsString
+                );
+              });
 
               if (!client) return "ERROR: Could not find client";
 
@@ -87,22 +88,38 @@ const ClientServiceEditor = ({
         </View>
         <LocationPickers
           value={{
-            city: contact.city,
-            locationCategory: contact.locationCategory,
-            location: contact.location,
+            city: editorContext.contact.city,
+            locationCategory: editorContext.contact.locationCategory,
+            location: editorContext.contact.location,
           }}
           onChange={value => {
-            const contactClone = cloneDeep(contact);
+            const contactClone = cloneDeep(editorContext.contact);
+
+            if (!contactClone) return;
+
             contactClone.city = value.city;
             contactClone.locationCategory = value.locationCategory;
             contactClone.location = value.location;
-            navigation.setParams({contact: contactClone});
+
+            editorContext.setContact(contactClone);
           }}
           locations={realmState.locations}
         />
-        <View>
+        <View className="mt-4">
+          <Text className="text-xl text-black font-bold">SERVICES</Text>
+        </View>
+        <View className="mt-4 flex flex-col flex-nowrap justify-start items-stretch space-y-2">
           {realmState.services.categories?.map(category => (
-            <Text key={category.uuid}>{category.category}</Text>
+            <View key={category.uuid}>
+              <ContactEditorLI
+                label={category.category}
+                onPress={() =>
+                  navigation.navigate("CategoryEditor", {
+                    categoryUUID: category.uuid,
+                  })
+                }
+              />
+            </View>
           ))}
         </View>
       </ScrollView>
@@ -110,4 +127,4 @@ const ClientServiceEditor = ({
   );
 };
 
-export default ClientServiceEditor;
+export default ContactEditor;

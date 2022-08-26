@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
   ActionSheetIOS,
-  ActivityIndicator,
   Button,
   findNodeHandle,
   Platform,
@@ -20,7 +19,8 @@ import {useTailwind} from "tailwindcss-react-native";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
-import {Service} from "./ClientServiceEditor/ClientServiceEditor";
+import {ContactService} from "./ContactEditor/ContactEditor";
+import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
 import LLTextInput from "./LLComponents/LLTextInput";
 import LocationPickers from "./LocationPickers";
 import {RootStackParamList} from "./NavigationStack";
@@ -30,7 +30,7 @@ import {RealmStateContext} from "./RealmStateProvider";
 dayjs.extend(utc);
 
 export type DailyList = {
-  _idAsString: string; // Cannot pass ObjectId as route param
+  _id: ObjectId;
   organization: string;
   creator: string;
   timestamp: dayjs.Dayjs;
@@ -40,11 +40,11 @@ export type DailyList = {
 
 export type Contact = {
   clientIdAsString: string; // Cannot pass ObjectId as route param
-  timestamp: string;
+  timestampAsString: string;
   city: string;
   locationCategory: string;
   location: string;
-  services: Service[] | null;
+  services: ContactService[];
 };
 
 const MainView = ({
@@ -55,20 +55,9 @@ const MainView = ({
   const auth = useContext(AuthContext);
   const realmState = useContext(RealmStateContext);
 
-  console.log(realmState?.locations);
-
   const [city, setCity] = useState<string>("");
   const [locationCategory, setLocationCategory] = useState<string>("");
   const [location, setLocation] = useState<string>("");
-
-  const [dailyList, setDailyList] = useState<DailyList>({
-    _idAsString: new ObjectId().toString(),
-    organization: auth?.organization ? auth.organization : "",
-    creator: auth?.email ? auth.email.split("@")[0] : "",
-    timestamp: dayjs.utc(),
-    note: [""],
-    contacts: [],
-  });
 
   const menuButton = useRef<Button>(null);
 
@@ -125,13 +114,17 @@ const MainView = ({
   // TODO: Change the clients into a flatlist
 
   const clientMapFn = (client: Client, isChecked: boolean) => {
+    if (!realmState?.dailyList) return;
+
     return (
       <View key={String(client._id)}>
         <ClientLI
           client={client}
           isChecked={isChecked}
-          onPress={() => {
-            const dailyListClone = cloneDeep(dailyList);
+          onCheckboxPress={() => {
+            const dailyListClone = cloneDeep(realmState.dailyList);
+            if (!dailyListClone) return;
+
             const contacts = dailyListClone.contacts;
 
             if (isChecked) {
@@ -142,24 +135,30 @@ const MainView = ({
             } else
               contacts.push({
                 clientIdAsString: client._id.toString(),
-                timestamp: dayjs.utc().toISOString(),
+                timestampAsString: dayjs.utc().toISOString(),
                 city,
                 locationCategory,
                 location,
-                services: null,
+                services: [],
               });
 
-            setDailyList(dailyListClone);
+            realmState.setDailyList(dailyListClone);
           }}
           contact={
             isChecked
-              ? dailyList.contacts.find(
+              ? realmState.dailyList.contacts.find(
                   contact => contact.clientIdAsString === client._id.toString(),
                 )
               : undefined
           }
-          dailyListIdAsString={dailyList._idAsString}
-          navigation={isChecked ? navigation : undefined}
+          onEditPress={
+            isChecked
+              ? contactClientIdAsString =>
+                  navigation.navigate("ContactEditorNavigator", {
+                    contactClientIdAsString,
+                  })
+              : undefined
+          }
         />
       </View>
     );
@@ -169,13 +168,10 @@ const MainView = ({
     !realmState ||
     !realmState.clients ||
     !realmState.locations ||
-    !realmState.services
+    !realmState.services ||
+    !realmState.dailyList
   )
-    return (
-      <SafeAreaView className="h-full flex flex-col flex-nowrap justify-center items-center">
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
+    return <LLActivityIndicatorView />;
 
   return (
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
@@ -184,11 +180,13 @@ const MainView = ({
           "flex flex-col flex-nowrap justify-start items-stretch",
         )}>
         <LLTextInput
-          value={dailyList.note.join("\n")}
+          value={realmState.dailyList.note.join("\n")}
           onChange={value => {
-            const dailyListClone = cloneDeep(dailyList);
+            const dailyListClone = cloneDeep(realmState.dailyList);
+            if (!dailyListClone) return;
+
             dailyListClone.note = value.split("\n");
-            setDailyList(dailyListClone);
+            realmState.setDailyList(dailyListClone);
           }}
           placeholder="NOTES"
           multiline={true}
@@ -209,7 +207,7 @@ const MainView = ({
             const unselectedClients = [];
 
             const contactIds = [];
-            for (const contact of dailyList.contacts)
+            for (const contact of realmState.dailyList.contacts)
               contactIds.push(contact.clientIdAsString);
 
             for (const client of realmState.clients)
