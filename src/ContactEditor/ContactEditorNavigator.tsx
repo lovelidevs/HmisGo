@@ -12,6 +12,7 @@ import {RootStackParamList} from "../NavigationStack";
 import {RealmStateContext} from "../RealmStateProvider";
 import CategoryEditor from "./CategoryEditor";
 import ContactEditor from "./ContactEditor";
+import ServiceEditor from "./ServiceEditor";
 
 /*
   useEffect(() => {
@@ -29,7 +30,7 @@ import ContactEditor from "./ContactEditor";
 export type ContactEditorStackParamList = {
   ContactEditor: undefined;
   CategoryEditor: {categoryUUID: string};
-  ServiceEditor: {serviceUUID: string; categoryUUID: string};
+  ServiceEditor: {categoryUUID: string; serviceUUID: string};
 };
 
 type ContactEditorContextType = {
@@ -98,12 +99,17 @@ const ContactEditorNavigator = ({
         <Stack.Screen
           name="ContactEditor"
           component={ContactEditor}
-          options={{title: "Contact Editor"}}
+          options={{title: "Contact Editor", presentation: "card"}}
         />
         <Stack.Screen
           name="CategoryEditor"
           component={CategoryEditor}
-          options={{title: "Category Editor"}}
+          options={{title: "Category Editor", presentation: "card"}}
+        />
+        <Stack.Screen
+          name="ServiceEditor"
+          component={ServiceEditor}
+          options={{title: "Service Editor", presentation: "card"}}
         />
       </Stack.Navigator>
     </ContactEditorContext.Provider>

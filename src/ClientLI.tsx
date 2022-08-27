@@ -34,10 +34,11 @@ const servicesToString = (services: ContactService[]) => {
   for (const service of services) {
     let text = service.service;
 
-    if (service.count || service.list)
+    if (service.text || service.count || service.list)
       text +=
         " (" +
         ((): string => {
+          if (service.text) return service.text;
           if (service.count) return service.count + " " + service.units;
           if (service.list) return service.list.join(", ");
           return "";

@@ -19,6 +19,7 @@ import {
 export type ContactService = {
   uuid: string;
   service: string;
+  text?: string;
   count?: number;
   units?: string;
   list?: string[];
@@ -64,7 +65,7 @@ const ContactEditor = ({
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
       <ScrollView
         contentContainerStyle={tw(
-          "flex flex-col flex-nowrap justify-start items-stretch",
+          "flex flex-col flex-nowrap justify-start items-stretch pb-4",
         )}>
         <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6">
           <Text className="text-xl text-black font-bold">

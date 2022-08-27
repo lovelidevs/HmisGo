@@ -1,12 +1,16 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Alert, Platform, Text} from "react-native";
+import {Alert, ScrollView, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
+import LLTextInput from "../LLComponents/LLTextInput";
+import {locationsArrayFromLocationDocument} from "../LocationPickers";
 import {RealmStateContext} from "../RealmStateProvider";
-import {Service} from "./ContactEditor";
+import {ContactService, Service} from "./ContactEditor";
+import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {
   ContactEditorContext,
   ContactEditorStackParamList,
@@ -16,7 +20,7 @@ const ServiceEditor = ({
   navigation,
   route,
 }: NativeStackScreenProps<ContactEditorStackParamList, "ServiceEditor">) => {
-  const {serviceUUID, categoryUUID} = route.params;
+  const {categoryUUID, serviceUUID} = route.params;
 
   const realmState = useContext(RealmStateContext);
   const editorContext = useContext(ContactEditorContext);
@@ -36,13 +40,139 @@ const ServiceEditor = ({
 
     navigation.setOptions({title: result.service});
     setService(result);
-  }, [service, realmState?.services, serviceUUID, categoryUUID, navigation]);
+  }, [service, realmState?.services, categoryUUID, serviceUUID, navigation]);
 
-  if (!service || !editorContext?.contact) return <LLActivityIndicatorView />;
+  if (!service || !editorContext?.contact || !realmState?.locations)
+    return <LLActivityIndicatorView />;
+
+  const toggleProps = (
+    listItem: string,
+  ): {toggleValue: boolean; onToggleChange: (value: boolean) => void} => {
+    return {
+      toggleValue: (() => {
+        const contactService = editorContext.contact?.services?.find(
+          serv => serv.uuid === service.uuid,
+        );
+
+        if (!contactService?.list) return false;
+        if (contactService.list.includes(listItem)) return true;
+        return false;
+      })(),
+      onToggleChange: value => {
+        const contactClone = cloneDeep(editorContext.contact);
+
+        if (!contactClone) return;
+
+        const contactService = contactClone.services?.find(
+          serv => serv.uuid === service.uuid,
+        );
+
+        if (!contactService) {
+          contactClone.services.push({
+            uuid: service.uuid,
+            service: service.service,
+            list: [listItem],
+          });
+          return editorContext.setContact(contactClone);
+        }
+
+        if (value)
+          if (contactService.list) contactService.list.push(listItem);
+          else contactService.list = [listItem];
+        else if (contactService.list) {
+          contactService.list.splice(contactService.list.indexOf(listItem), 1);
+          if (contactService.list.length === 0)
+            contactClone.services.splice(
+              contactClone.services.indexOf(contactService),
+              1,
+            );
+        }
+
+        editorContext.setContact(contactClone);
+      },
+    };
+  };
 
   return (
-    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
-      <Text>{"Test"}</Text>
+    <SafeAreaView className={"px-6"}>
+      {((): JSX.Element => {
+        switch (service.inputType) {
+          case InputType.TEXTBOX:
+            return (
+              <LLTextInput
+                value={((): string => {
+                  const contactService = editorContext?.contact?.services?.find(
+                    serv => serv.uuid === service.uuid,
+                  );
+
+                  if (contactService?.text) return contactService.text;
+                  else return "";
+                })()}
+                onChange={value => {
+                  const contactClone = cloneDeep(editorContext.contact);
+
+                  if (!contactClone) return;
+
+                  const contactService: ContactService = {
+                    uuid: service.uuid,
+                    service: service.service,
+                    text: value,
+                  };
+
+                  const index = contactClone.services.findIndex(
+                    serv => serv.uuid === service.uuid,
+                  );
+
+                  if (index >= 0)
+                    if (value) contactClone.services[index] = contactService;
+                    else contactClone.services.splice(index, 1);
+                  else if (value) contactClone.services.push(contactService);
+
+                  editorContext.setContact(contactClone);
+                }}
+                multiline={true}
+                placeholder="DESCRIPTION"
+              />
+            );
+          case InputType.LOCATIONS:
+            return (
+              <ScrollView>
+                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 my-4">
+                  {realmState.locations &&
+                    locationsArrayFromLocationDocument(
+                      realmState.locations,
+                    ).map(listItem => (
+                      <View key={listItem}>
+                        <ContactEditorLI
+                          label={listItem}
+                          inputType={InputType.TOGGLE}
+                          {...toggleProps(listItem)}
+                        />
+                      </View>
+                    ))}
+                </View>
+              </ScrollView>
+            );
+          case InputType.CUSTOM_LIST:
+            return (
+              <ScrollView>
+                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 my-4">
+                  {service.customList?.map(listItem => (
+                    <View key={listItem}>
+                      <ContactEditorLI
+                        label={listItem}
+                        inputType={InputType.TOGGLE}
+                        {...toggleProps(listItem)}
+                      />
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            );
+          default:
+            return <></>;
+        }
+      })()}
     </SafeAreaView>
   );
 };

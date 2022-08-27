@@ -4,6 +4,7 @@ import {Alert, Platform, ScrollView, View} from "react-native";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import {RealmStateContext} from "../RealmStateProvider";
@@ -18,6 +19,7 @@ const CategoryEditor = ({
   navigation,
   route,
 }: NativeStackScreenProps<ContactEditorStackParamList, "CategoryEditor">) => {
+  const tw = useTailwind();
   const {categoryUUID} = route.params;
 
   const realmState = useContext(RealmStateContext);
@@ -119,7 +121,7 @@ const CategoryEditor = ({
 
   return (
     <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={tw("pb-4")}>
         <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2">
           {category.services &&
             category.services.map(service => (
@@ -133,6 +135,14 @@ const CategoryEditor = ({
                         return toggleProps(service);
                       case InputType.COUNTER:
                         return counterProps(service);
+                      default:
+                        return {
+                          onPress: () =>
+                            navigation.navigate("ServiceEditor", {
+                              categoryUUID: categoryUUID,
+                              serviceUUID: service.uuid,
+                            }),
+                        };
                     }
                   })()}
                 />

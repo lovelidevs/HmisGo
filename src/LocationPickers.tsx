@@ -35,6 +35,30 @@ type LocationStrings = {
   location: string;
 };
 
+export const locationsArrayFromLocationDocument = (
+  document: LocationDocument,
+): string[] => {
+  if (!document.cities) return [];
+
+  const result: string[] = [];
+
+  for (const city of document.cities)
+    if (city.categories)
+      for (const category of city.categories)
+        if (category.locations)
+          for (const location of category.locations) {
+            result.push(location.location);
+
+            if (location.places)
+              for (const place of location.places)
+                result.push(location.location + ": " + place);
+          }
+
+  return result.sort((a, b) =>
+    a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
+  );
+};
+
 const LocationPickers = ({
   value,
   onChange,
