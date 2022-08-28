@@ -1,11 +1,11 @@
 import React from "react";
 import {Text, View} from "react-native";
 
+import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import {ContactService} from "./ContactEditor/ContactEditor";
-import {Contact} from "./MainView";
+import {Contact, ContactService} from "./ContactEditor/ContactEditor";
 import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
@@ -19,7 +19,7 @@ const clientToString = (client: Client) => {
 
 const contactToString = (contact: Contact) => {
   let result =
-    dayjs(contact.timestampAsString).format("h:mm A") +
+    dayjs(contact.timestamp).format("h:mm A") +
     (contact.locationCategory && " @ " + contact.location);
 
   if (contact.services.length > 0)
@@ -62,7 +62,7 @@ const ClientLI = ({
   isChecked: boolean;
   onCheckboxPress: (checked: boolean) => void;
   contact?: Contact;
-  onEditPress?: (contactClientIdAsString: string) => void;
+  onEditPress?: (ClientId: ObjectId) => void;
 }) => {
   return (
     <View className="flex flex-row flex-nowrap justify-start items-center">
@@ -78,7 +78,7 @@ const ClientLI = ({
         {isChecked && contact && onEditPress && (
           <Text
             className="shrink text-base text-black border border-orange-300 rounded-lg bg-white p-2 mt-1"
-            onPress={() => onEditPress(contact.clientIdAsString)}>
+            onPress={() => onEditPress(contact.clientId)}>
             {contactToString(contact)}
           </Text>
         )}

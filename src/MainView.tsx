@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
   ActionSheetIOS,
+  Alert,
   Button,
   findNodeHandle,
   Platform,
@@ -19,7 +20,7 @@ import {useTailwind} from "tailwindcss-react-native";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import ClientLI from "./ClientLI";
-import {ContactService} from "./ContactEditor/ContactEditor";
+import {Contact} from "./ContactEditor/ContactEditor";
 import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
 import LLTextInput from "./LLComponents/LLTextInput";
 import LocationPickers from "./LocationPickers";
@@ -33,18 +34,9 @@ export type DailyList = {
   _id: ObjectId;
   organization: string;
   creator: string;
-  timestamp: dayjs.Dayjs;
-  note: string[];
-  contacts: Contact[];
-};
-
-export type Contact = {
-  clientIdAsString: string; // Cannot pass ObjectId as route param
-  timestampAsString: string;
-  city: string;
-  locationCategory: string;
-  location: string;
-  services: ContactService[];
+  timestamp: string;
+  note: string[] | null;
+  contacts: Contact[] | null;
 };
 
 const MainView = ({
@@ -76,7 +68,6 @@ const MainView = ({
             const handlePress = (index: number | undefined) => {
               switch (index) {
                 case 0:
-                  console.log("Submit pressed!");
                   // TODO
                   break;
                 case 1:
@@ -102,7 +93,7 @@ const MainView = ({
               UIManager.showPopupMenu(
                 node,
                 menuItems,
-                () => console.log("Show Pop Up Menu Error"),
+                () => Alert.alert("", "Unable to open pop up menu"),
                 (item: string, index: number | undefined) => handlePress(index),
               );
           }}
@@ -125,37 +116,40 @@ const MainView = ({
             const dailyListClone = cloneDeep(realmState.dailyList);
             if (!dailyListClone) return;
 
+            if (!dailyListClone.contacts) dailyListClone.contacts = [];
             const contacts = dailyListClone.contacts;
 
             if (isChecked) {
               const index = contacts.findIndex(
-                contact => contact.clientIdAsString === client._id.toString(),
+                contact =>
+                  contact.clientId.toString() === client._id.toString(),
               );
               contacts.splice(index, 1);
             } else
               contacts.push({
-                clientIdAsString: client._id.toString(),
-                timestampAsString: dayjs.utc().toISOString(),
+                clientId: client._id,
+                timestamp: dayjs.utc().toISOString(),
                 city,
                 locationCategory,
                 location,
                 services: [],
               });
 
-            realmState.setDailyList(dailyListClone);
+            realmState.updateDailyList(dailyListClone);
           }}
           contact={
             isChecked
-              ? realmState.dailyList.contacts.find(
-                  contact => contact.clientIdAsString === client._id.toString(),
+              ? realmState.dailyList.contacts?.find(
+                  contact =>
+                    contact.clientId.toString() === client._id.toString(),
                 )
               : undefined
           }
           onEditPress={
             isChecked
-              ? contactClientIdAsString =>
+              ? clientId =>
                   navigation.navigate("ContactEditorNavigator", {
-                    contactClientIdAsString,
+                    contactClientIdAsString: clientId.toString(),
                   })
               : undefined
           }
@@ -180,13 +174,17 @@ const MainView = ({
           "flex flex-col flex-nowrap justify-start items-stretch",
         )}>
         <LLTextInput
-          value={realmState.dailyList.note.join("\n")}
+          value={
+            realmState.dailyList.note
+              ? realmState.dailyList.note?.join("\n")
+              : ""
+          }
           onChange={value => {
             const dailyListClone = cloneDeep(realmState.dailyList);
             if (!dailyListClone) return;
 
-            dailyListClone.note = value.split("\n");
-            realmState.setDailyList(dailyListClone);
+            dailyListClone.note = value ? value.split("\n") : [];
+            realmState.updateDailyList(dailyListClone); // TODO: need to debounce this
           }}
           placeholder="NOTES"
           multiline={true}
@@ -203,12 +201,13 @@ const MainView = ({
         />
         <View className="space-y-4 my-6">
           {(() => {
-            const selectedClients = [];
-            const unselectedClients = [];
+            const selectedClients: Client[] = [];
+            const unselectedClients: Client[] = [];
 
             const contactIds = [];
-            for (const contact of realmState.dailyList.contacts)
-              contactIds.push(contact.clientIdAsString);
+            if (realmState.dailyList.contacts)
+              for (const contact of realmState.dailyList.contacts)
+                contactIds.push(contact.clientId.toString());
 
             for (const client of realmState.clients)
               if (contactIds.includes(client._id.toString()))

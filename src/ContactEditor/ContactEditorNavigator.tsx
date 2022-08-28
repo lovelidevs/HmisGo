@@ -7,25 +7,11 @@ import {
 } from "@react-navigation/native-stack";
 import cloneDeep from "lodash.clonedeep";
 
-import {Contact} from "../MainView";
 import {RootStackParamList} from "../NavigationStack";
 import {RealmStateContext} from "../RealmStateProvider";
 import CategoryEditor from "./CategoryEditor";
-import ContactEditor from "./ContactEditor";
+import ContactEditor, {Contact} from "./ContactEditor";
 import ServiceEditor from "./ServiceEditor";
-
-/*
-  useEffect(() => {
-    if (!realmState?.dailyList?.contacts || !editorContext) return;
-
-    const result = realmState.dailyList.contacts.find(
-      contact => contact.clientIdAsString === contactClientIdAsString,
-    );
-
-    if (result) editorContext.setContact(result);
-    else Alert.alert("Contact Editor Error", "Unable to load contact");
-  }, [realmState?.dailyList, editorContext, contactClientIdAsString]);
-  */
 
 export type ContactEditorStackParamList = {
   ContactEditor: undefined;
@@ -57,8 +43,8 @@ const ContactEditorNavigator = ({
     if (contact) return;
     if (!realmState?.dailyList) return;
 
-    const result = realmState.dailyList.contacts.find(
-      con => con.clientIdAsString === contactClientIdAsString,
+    const result = realmState.dailyList.contacts?.find(
+      con => con.clientId.toString() === contactClientIdAsString,
     );
 
     if (!result) return Alert.alert("", "Unable to load contact");
@@ -83,14 +69,17 @@ const ContactEditorNavigator = ({
                 if (!contact || !realmState?.dailyList) return errorAlert();
 
                 const dailyListClone = cloneDeep(realmState.dailyList);
+                if (!dailyListClone.contacts) return errorAlert();
+
                 const index = dailyListClone.contacts.findIndex(
-                  con => con.clientIdAsString === contact?.clientIdAsString,
+                  con =>
+                    con.clientId.toString() === contact?.clientId.toString(),
                 );
 
-                if (index === -1) return errorAlert();
+                if (!index || index === -1) return errorAlert();
 
                 dailyListClone.contacts[index] = contact;
-                realmState.setDailyList(dailyListClone);
+                realmState.updateDailyList(dailyListClone);
                 navigation.navigate("HmisGo");
               }}
             />

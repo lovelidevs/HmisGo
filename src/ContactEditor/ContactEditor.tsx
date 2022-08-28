@@ -16,6 +16,15 @@ import {
   ContactEditorStackParamList,
 } from "./ContactEditorNavigator";
 
+export type Contact = {
+  clientId: ObjectId;
+  timestamp: string;
+  city: string;
+  locationCategory: string;
+  location: string;
+  services: ContactService[];
+};
+
 export type ContactService = {
   uuid: string;
   service: string;
@@ -74,7 +83,7 @@ const ContactEditor = ({
                 if (!editorContext.contact) return;
                 return (
                   value._id.toString() ===
-                  editorContext.contact.clientIdAsString
+                  editorContext.contact.clientId.toString()
                 );
               });
 

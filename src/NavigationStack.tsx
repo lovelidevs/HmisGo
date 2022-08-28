@@ -6,7 +6,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
-import ListSelectView from "./ListSelectView";
+import DailyListSelectView from "./DailyListSelectView";
 import MainView from "./MainView";
 import NewClientView from "./NewClientView";
 
@@ -34,8 +34,8 @@ const NavigationStack = () => {
         {auth?.isAuthenticated ? (
           <>
             <Stack.Screen
-              name="ListSelect"
-              component={ListSelectView}
+              name="DailyListSelect"
+              component={DailyListSelectView}
               options={{title: "Daily Lists"}}
             />
             <Stack.Screen

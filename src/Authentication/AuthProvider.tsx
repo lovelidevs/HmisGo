@@ -89,6 +89,45 @@ const service_categories_servicesSchema = {
   },
 };
 
+const dailylistSchema = {
+  name: "dailylist",
+  properties: {
+    _id: "objectId",
+    contacts: "dailylist_contacts[]",
+    creator: "string",
+    note: "string[]",
+    organization: "string",
+    timestamp: "date",
+  },
+  primaryKey: "_id",
+};
+
+const dailylist_contactsSchema = {
+  name: "dailylist_contacts",
+  embedded: true,
+  properties: {
+    city: "string",
+    clientId: "objectId",
+    location: "string",
+    locationCategory: "string",
+    services: "dailylist_contacts_services[]",
+    timestamp: "date",
+  },
+};
+
+const dailylist_contacts_servicesSchema = {
+  name: "dailylist_contacts_services",
+  embedded: true,
+  properties: {
+    count: "int?",
+    list: "string[]",
+    service: "string",
+    text: "string?",
+    units: "string?",
+    uuid: "string",
+  },
+};
+
 type UserCustomData = {
   _id: string;
   email: string;
@@ -146,6 +185,9 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
             serviceSchema,
             service_categoriesSchema,
             service_categories_servicesSchema,
+            dailylistSchema,
+            dailylist_contactsSchema,
+            dailylist_contacts_servicesSchema,
           ],
           sync: {
             user: user,
