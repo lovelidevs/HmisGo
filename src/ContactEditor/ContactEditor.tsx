@@ -19,8 +19,8 @@ import {
 export type Contact = {
   clientId: ObjectId;
   timestamp: string;
-  city: string;
-  locationCategory: string;
+  cityUUID: string;
+  locationCategoryUUID: string;
   location: string;
   services: ContactService[];
 };
@@ -98,8 +98,8 @@ const ContactEditor = ({
         </View>
         <LocationPickers
           value={{
-            city: editorContext.contact.city,
-            locationCategory: editorContext.contact.locationCategory,
+            cityUUID: editorContext.contact.cityUUID,
+            locationCategoryUUID: editorContext.contact.locationCategoryUUID,
             location: editorContext.contact.location,
           }}
           onChange={value => {
@@ -107,8 +107,8 @@ const ContactEditor = ({
 
             if (!contactClone) return;
 
-            contactClone.city = value.city;
-            contactClone.locationCategory = value.locationCategory;
+            contactClone.cityUUID = value.cityUUID;
+            contactClone.locationCategoryUUID = value.locationCategoryUUID;
             contactClone.location = value.location;
 
             editorContext.setContact(contactClone);

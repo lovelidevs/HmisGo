@@ -18,9 +18,11 @@ type RealmStateType = {
   locations: LocationDocument | null;
   services: ServiceDocument | null;
   dailyListKeys: DailyListKey[] | null;
+  dailyListId: ObjectId | null;
   setDailyListId: React.Dispatch<React.SetStateAction<ObjectId | null>>;
   dailyList: DailyList | null;
-  updateDailyList: (list: DailyList) => void;
+  updateDailyListNote: (note: string[]) => void;
+  updateDailyListContacts: (contacts: Contact[]) => void;
 };
 
 type DailyListKey = {
@@ -132,7 +134,9 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
   }, [auth?.realm]);
 
   useEffect(() => {
-    if (!auth?.realm || !dailyListId) return;
+    if (!auth?.realm) return;
+
+    if (!dailyListId) return setDailyList(null);
 
     try {
       const result = auth.realm
@@ -155,6 +159,7 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
             );
         });
 
+        console.log("UPDATE");
         setDailyList(objectClone);
       });
 
@@ -166,6 +171,45 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
     }
   }, [auth?.realm, dailyListId]);
 
+  const updateDailyListNote = (note: string[]) => {
+    try {
+      auth?.realm?.write(() => {
+        const result = auth.realm
+          ?.objects("dailylist")
+          .filtered(`_id == oid(${dailyListId?.toString()})`);
+
+        if (!result || result.length === 0)
+          return Alert.alert("Realm Error", "Unable to find daily list");
+
+        const object = result[0] as unknown as DailyList;
+
+        object.note = note;
+      });
+    } catch (error) {
+      Alert.alert("Update Error", String(error));
+    }
+  };
+
+  const updateDailyListContacts = (contacts: Contact[]) => {
+    try {
+      auth?.realm?.write(() => {
+        const result = auth.realm
+          ?.objects("dailylist")
+          .filtered(`_id == oid(${dailyListId?.toString()})`);
+
+        if (!result || result.length === 0)
+          return Alert.alert("Realm Error", "Unable to find daily list");
+
+        const object = result[0] as unknown as DailyList;
+
+        object.contacts = contacts;
+      });
+    } catch (error) {
+      Alert.alert("Update Error", String(error));
+    }
+  };
+
+  /*
   const updateDailyList = (list: DailyList) => {
     try {
       auth?.realm?.write(() => {
@@ -175,6 +219,7 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
       Alert.alert("Update Error", String(error));
     }
   };
+  */
 
   return (
     <RealmStateContext.Provider
@@ -183,9 +228,11 @@ const RealmStateProvider = ({children}: {children: ReactNode}) => {
         locations,
         services,
         dailyListKeys,
+        dailyListId,
         setDailyListId,
         dailyList,
-        updateDailyList,
+        updateDailyListNote,
+        updateDailyListContacts,
       }}>
       {children}
     </RealmStateContext.Provider>

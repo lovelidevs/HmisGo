@@ -68,18 +68,19 @@ const ContactEditorNavigator = ({
 
                 if (!contact || !realmState?.dailyList) return errorAlert();
 
-                const dailyListClone = cloneDeep(realmState.dailyList);
-                if (!dailyListClone.contacts) return errorAlert();
+                const contactsClone = cloneDeep(realmState.dailyList).contacts;
+                if (!contactsClone) return errorAlert();
 
-                const index = dailyListClone.contacts.findIndex(
+                const index = contactsClone.findIndex(
                   con =>
                     con.clientId.toString() === contact?.clientId.toString(),
                 );
 
-                if (!index || index === -1) return errorAlert();
+                if (index === -1) return errorAlert();
 
-                dailyListClone.contacts[index] = contact;
-                realmState.updateDailyList(dailyListClone);
+                contactsClone[index] = contact;
+
+                realmState.updateDailyListContacts(contactsClone);
                 navigation.navigate("HmisGo");
               }}
             />

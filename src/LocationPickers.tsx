@@ -30,8 +30,8 @@ type Location = {
 };
 
 type LocationStrings = {
-  city: string;
-  locationCategory: string;
+  cityUUID: string;
+  locationCategoryUUID: string;
   location: string;
 };
 
@@ -76,15 +76,19 @@ const LocationPickers = ({
     <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-4">
       <View style={viewStyle}>
         <Picker
-          selectedValue={value.city}
+          selectedValue={value.cityUUID}
           onValueChange={itemValue =>
-            onChange({city: itemValue, locationCategory: "", location: ""})
+            onChange({
+              cityUUID: itemValue,
+              locationCategoryUUID: "",
+              location: "",
+            })
           }
           dropdownIconColor="black"
           style={pickerStyle}>
           <Picker.Item
             key=""
-            label={value.city ? "" : "SELECT CITY"}
+            label={value.cityUUID ? "" : "SELECT CITY"}
             value={""}
           />
           {locations.cities?.map(cityObject => (
@@ -98,11 +102,11 @@ const LocationPickers = ({
       </View>
       <View style={viewStyle}>
         <Picker
-          selectedValue={value.locationCategory}
+          selectedValue={value.locationCategoryUUID}
           onValueChange={itemValue =>
             onChange({
-              city: value.city,
-              locationCategory: itemValue,
+              cityUUID: value.cityUUID,
+              locationCategoryUUID: itemValue,
               location: "",
             })
           }
@@ -110,12 +114,12 @@ const LocationPickers = ({
           style={pickerStyle}>
           <Picker.Item
             key=""
-            label={value.locationCategory ? "" : "SELECT LOCATION CATEGORY"}
+            label={value.locationCategoryUUID ? "" : "SELECT LOCATION CATEGORY"}
             value={""}
           />
           {(() => {
             const tempCity = locations.cities?.find(
-              cityObject => cityObject.uuid === value.city,
+              cityObject => cityObject.uuid === value.cityUUID,
             );
             if (!tempCity) return;
 
@@ -134,8 +138,8 @@ const LocationPickers = ({
           selectedValue={value.location}
           onValueChange={itemValue =>
             onChange({
-              city: value.city,
-              locationCategory: value.locationCategory,
+              cityUUID: value.cityUUID,
+              locationCategoryUUID: value.locationCategoryUUID,
               location: itemValue,
             })
           }
@@ -148,12 +152,13 @@ const LocationPickers = ({
           />
           {(() => {
             const tempCity = locations.cities?.find(
-              cityObject => cityObject.uuid === value.city,
+              cityObject => cityObject.uuid === value.cityUUID,
             );
             if (!tempCity) return;
 
             const tempCategories = tempCity.categories?.find(
-              categoryObject => categoryObject.uuid === value.locationCategory,
+              categoryObject =>
+                categoryObject.uuid === value.locationCategoryUUID,
             );
             if (!tempCategories) return;
 

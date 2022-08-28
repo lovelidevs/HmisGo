@@ -13,8 +13,34 @@ const clientSchema = {
     hmisID: "string?",
     lastName: "string",
     organization: "string",
+    serviceHistory: "client_serviceHistory[]",
   },
   primaryKey: "_id",
+};
+
+const client_serviceHistorySchema = {
+  name: "client_serviceHistory",
+  embedded: true,
+  properties: {
+    city: "string?",
+    date: "string",
+    location: "string?",
+    locationCategory: "string?",
+    services: "client_serviceHistory_services[]",
+    time: "date?",
+  },
+};
+
+const client_serviceHistory_servicesSchema = {
+  name: "client_serviceHistory_services",
+  embedded: true,
+  properties: {
+    count: "int?",
+    list: "string[]",
+    service: "string",
+    text: "string?",
+    units: "string?",
+  },
 };
 
 const locationSchema = {
@@ -106,10 +132,10 @@ const dailylist_contactsSchema = {
   name: "dailylist_contacts",
   embedded: true,
   properties: {
-    city: "string",
+    cityUUID: "string",
     clientId: "objectId",
     location: "string",
-    locationCategory: "string",
+    locationCategoryUUID: "string",
     services: "dailylist_contacts_services[]",
     timestamp: "date",
   },
@@ -126,6 +152,17 @@ const dailylist_contacts_servicesSchema = {
     units: "string?",
     uuid: "string",
   },
+};
+
+const noteSchema = {
+  name: "note",
+  properties: {
+    _id: "objectId",
+    content: "string[]",
+    datetime: "date",
+    organization: "string",
+  },
+  primaryKey: "_id",
 };
 
 type UserCustomData = {
@@ -178,6 +215,8 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         const result = await Realm.open({
           schema: [
             clientSchema,
+            client_serviceHistorySchema,
+            client_serviceHistory_servicesSchema,
             locationSchema,
             location_citiesSchema,
             location_cities_categoriesSchema,
@@ -188,6 +227,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
             dailylistSchema,
             dailylist_contactsSchema,
             dailylist_contacts_servicesSchema,
+            noteSchema,
           ],
           sync: {
             user: user,
@@ -196,7 +236,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         });
         setRealm(result);
       } catch (error) {
-        Alert.alert("", String(error));
+        Alert.alert("Error opening Realm", String(error));
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

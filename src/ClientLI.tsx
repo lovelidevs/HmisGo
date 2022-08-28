@@ -20,7 +20,7 @@ const clientToString = (client: Client) => {
 const contactToString = (contact: Contact) => {
   let result =
     dayjs(contact.timestamp).format("h:mm A") +
-    (contact.locationCategory && " @ " + contact.location);
+    (contact.location && " @ " + contact.location);
 
   if (contact.services.length > 0)
     result += "\n" + servicesToString(contact.services);
@@ -34,7 +34,11 @@ const servicesToString = (services: ContactService[]) => {
   for (const service of services) {
     let text = service.service;
 
-    if (service.text || service.count || service.list)
+    if (
+      service.text ||
+      service.count ||
+      (service.list && service.list.length > 0)
+    )
       text +=
         " (" +
         ((): string => {

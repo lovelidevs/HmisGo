@@ -23,6 +23,24 @@ export type Client = {
   DOB: string;
   alias?: string;
   hmisID?: string;
+  serviceHistory?: ClientContact[];
+};
+
+export type ClientContact = {
+  date: string;
+  time?: string;
+  city?: string;
+  locationCategory?: string;
+  location?: string;
+  services?: ClientService[];
+};
+
+export type ClientService = {
+  service: string;
+  text?: string;
+  count?: number;
+  units?: string;
+  list?: string[];
 };
 
 const NewClientView = ({
