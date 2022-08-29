@@ -9,11 +9,12 @@ import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {locationsArrayFromLocationDocument} from "../LocationPickers";
 import {RealmStateContext} from "../RealmStateProvider";
-import {ContactService, Service} from "./ContactEditor";
+import {Service} from "./ContactEditor";
 import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {
   ContactEditorContext,
   ContactEditorStackParamList,
+  ContactService,
 } from "./ContactEditorNavigator";
 
 const ServiceEditor = ({
@@ -99,40 +100,43 @@ const ServiceEditor = ({
         switch (service.inputType) {
           case InputType.TEXTBOX:
             return (
-              <LLTextInput
-                value={((): string => {
-                  const contactService = editorContext?.contact?.services?.find(
-                    serv => serv.uuid === service.uuid,
-                  );
+              <View className="mt-6">
+                <LLTextInput
+                  value={((): string => {
+                    const contactService =
+                      editorContext?.contact?.services?.find(
+                        serv => serv.uuid === service.uuid,
+                      );
 
-                  if (contactService?.text) return contactService.text;
-                  else return "";
-                })()}
-                onChange={value => {
-                  const contactClone = cloneDeep(editorContext.contact);
+                    if (contactService?.text) return contactService.text;
+                    else return "";
+                  })()}
+                  onChange={value => {
+                    const contactClone = cloneDeep(editorContext.contact);
 
-                  if (!contactClone) return;
+                    if (!contactClone) return;
 
-                  const contactService: ContactService = {
-                    uuid: service.uuid,
-                    service: service.service,
-                    text: value,
-                  };
+                    const contactService: ContactService = {
+                      uuid: service.uuid,
+                      service: service.service,
+                      text: value,
+                    };
 
-                  const index = contactClone.services.findIndex(
-                    serv => serv.uuid === service.uuid,
-                  );
+                    const index = contactClone.services.findIndex(
+                      serv => serv.uuid === service.uuid,
+                    );
 
-                  if (index >= 0)
-                    if (value) contactClone.services[index] = contactService;
-                    else contactClone.services.splice(index, 1);
-                  else if (value) contactClone.services.push(contactService);
+                    if (index >= 0)
+                      if (value) contactClone.services[index] = contactService;
+                      else contactClone.services.splice(index, 1);
+                    else if (value) contactClone.services.push(contactService);
 
-                  editorContext.setContact(contactClone);
-                }}
-                multiline={true}
-                placeholder="DESCRIPTION"
-              />
+                    editorContext.setContact(contactClone);
+                  }}
+                  multiline={true}
+                  placeholder="DESCRIPTION"
+                />
+              </View>
             );
           case InputType.LOCATIONS:
             return (

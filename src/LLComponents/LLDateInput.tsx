@@ -22,7 +22,7 @@ const LLDateInput = ({
 
   return (
     <>
-      <View className="rounded-lg border overflow-hidden">
+      <View className="rounded-lg border border-gray-300 overflow-hidden">
         <Text
           onPress={() => setOpen(true)}
           className={`text-lg p-2 bg-white ${twStyles}`}>

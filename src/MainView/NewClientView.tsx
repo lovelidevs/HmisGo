@@ -1,5 +1,5 @@
 import React, {useContext, useState} from "react";
-import {Alert, Button, Platform, View} from "react-native";
+import {Alert, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import "react-native-get-random-values";
@@ -9,6 +9,7 @@ import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 import {AuthContext} from "../Authentication/AuthProvider";
+import LLButton from "../LLComponents/LLButton";
 import LLDateInput from "../LLComponents/LLDateInput";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {RootStackParamList} from "../NavigationStack";
@@ -55,8 +56,8 @@ const NewClientView = ({
   const auth = useContext(AuthContext);
 
   return (
-    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
-      <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2">
+    <SafeAreaView className="px-6">
+      <View className="h-full flex flex-col flex-nowrap justify-center items-stretch space-y-2">
         <View>
           <LLTextInput
             value={lastName}
@@ -93,7 +94,7 @@ const NewClientView = ({
           />
         </View>
         <View className="pt-4 flex flex-row flex-wrap justify-evenly items-center">
-          <Button
+          <LLButton
             title="SUBMIT"
             onPress={() => {
               if (!lastName) return Alert.alert("", "last name required");
@@ -132,7 +133,7 @@ const NewClientView = ({
               }
             }}
           />
-          <Button title="CANCEL" onPress={() => navigation.goBack()} />
+          <LLButton title="CANCEL" onPress={() => navigation.goBack()} />
         </View>
       </View>
     </SafeAreaView>

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect} from "react";
-import {Alert, Button, ScrollView, Text, View} from "react-native";
+import {Alert, ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import "react-native-get-random-values";
@@ -11,6 +11,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {AuthContext} from "./Authentication/AuthProvider";
 import LogoutIcon from "./Icons/logout.svg";
 import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
+import LLButton from "./LLComponents/LLButton";
 import LLHeaderButton from "./LLComponents/LLHeaderButton";
 import {DailyList} from "./MainView/MainView";
 import {RootStackParamList} from "./NavigationStack";
@@ -44,7 +45,7 @@ const DailyListSelectView = ({
             realmState.dailyListKeys && "space-y-4"
           }`}>
           <View className="">
-            <Button
+            <LLButton
               title="Create New Daily List"
               onPress={() => {
                 if (!auth.realm) return;

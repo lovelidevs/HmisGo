@@ -1,8 +1,10 @@
 import React, {useContext, useState} from "react";
-import {Alert, Button, View} from "react-native";
+import {Alert, View} from "react-native";
 
 import {SafeAreaView} from "react-native-safe-area-context";
 
+import LLButton from "../LLComponents/LLButton";
+import LLLink from "../LLComponents/LLLink";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {AuthContext} from "./AuthProvider";
 
@@ -14,7 +16,7 @@ const Login = () => {
 
   return (
     <SafeAreaView className="px-6">
-      <View className="h-full flex flex-col flex-nowrap justify-center items-stretch space-y-4">
+      <View className="h-full flex flex-col flex-nowrap justify-center items-stretch">
         <View>
           <LLTextInput
             value={email}
@@ -23,7 +25,7 @@ const Login = () => {
             type="email"
           />
         </View>
-        <View>
+        <View className="mt-4">
           <LLTextInput
             value={password}
             onChange={value => setPassword(value)}
@@ -32,11 +34,15 @@ const Login = () => {
           />
         </View>
         <View>
-          {/* TODO: https://reactnative.dev/docs/pressable */}
-          <Button title="Forgot Password?" onPress={() => {}} />
+          <LLLink
+            title="Forgot Password?"
+            onPress={() => {
+              console.log("Forgot password");
+            }}
+          />
         </View>
-        <View className="flex flex-row flex-wrap justify-evenly items-center">
-          <Button
+        <View className="flex flex-row flex-wrap justify-evenly items-center mt-4">
+          <LLButton
             title="Log In"
             onPress={async () => {
               try {
@@ -46,7 +52,7 @@ const Login = () => {
               }
             }}
           />
-          <Button title="Sign Up" onPress={() => {}} />
+          <LLButton title="Sign Up" onPress={() => {}} />
         </View>
       </View>
     </SafeAreaView>
