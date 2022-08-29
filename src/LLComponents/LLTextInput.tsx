@@ -7,14 +7,14 @@ const LLTextInput = ({
   placeholder,
   type,
   multiline,
-  twStyles,
+  twStyle,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   type?: string;
   multiline?: boolean;
-  twStyles?: string;
+  twStyle?: string;
 }) => {
   return (
     <TextInput
@@ -24,7 +24,7 @@ const LLTextInput = ({
       value={value}
       onChangeText={onChange}
       autoCapitalize="none"
-      className={`rounded-lg border text-lg p-2 text-black bg-white ${twStyles}`}
+      className={`rounded-lg border border-gray-300 text-lg p-2 text-black bg-white ${twStyle}`}
       {...(type === "email" && {keyboardType: "email-address"})}
       {...(type === "password" && {secureTextEntry: true})}
     />

@@ -1,7 +1,8 @@
 import React from "react";
-import {Pressable, Switch, Text, View} from "react-native";
+import {Platform, Pressable, Switch, Text, View} from "react-native";
 
 import LLNumberInput from "../LLComponents/LLNumberInput";
+import {TW_CYAN_300, TW_CYAN_600, TW_GRAY_300, TW_GRAY_500} from "../Theme";
 
 export enum InputType {
   TOGGLE = "Toggle",
@@ -10,6 +11,12 @@ export enum InputType {
   LOCATIONS = "Locations",
   CUSTOM_LIST = "Custom List",
 }
+
+type SwitchStyleProps = {
+  trackColor: {true: string; false: string};
+  thumbColor: string;
+  ios_backgroundColor?: string;
+};
 
 const ContactEditorLI = ({
   label,
@@ -30,12 +37,31 @@ const ContactEditorLI = ({
 }) => {
   return (
     <Pressable onPress={onPress}>
-      <View className="flex flex-row flex-nowrap justify-between items-center rounded-lg border p-4 bg-orange-200 space-x-2">
-        <Text className="shrink text-lg text-black">{label}</Text>
+      <View
+        className={
+          "flex flex-row flex-nowrap justify-between items-center rounded-lg p-4 bg-gray-800 space-x-2"
+        }>
+        <Text className={"shrink text-lg text-cyan-300 font-bold"}>
+          {label}
+        </Text>
         {(() => {
           if (inputType === InputType.TOGGLE)
             return (
-              <Switch value={toggleValue} onValueChange={onToggleChange} />
+              <Switch
+                value={toggleValue}
+                onValueChange={onToggleChange}
+                {...((): SwitchStyleProps => {
+                  const switchStyleProps: SwitchStyleProps = {
+                    trackColor: {true: TW_CYAN_600, false: TW_GRAY_500},
+                    thumbColor: toggleValue ? TW_CYAN_300 : TW_GRAY_300,
+                  };
+
+                  if (Platform.OS === "ios")
+                    switchStyleProps.ios_backgroundColor = TW_GRAY_500;
+
+                  return switchStyleProps;
+                })()}
+              />
             );
 
           if (
@@ -49,7 +75,9 @@ const ContactEditorLI = ({
               </View>
             );
 
-          return <Text className="text-2xl text-black font-bold">{"›"}</Text>;
+          return (
+            <Text className={"text-2xl text-cyan-300 font-bold"}>{"›"}</Text>
+          );
         })()}
       </View>
     </Pressable>

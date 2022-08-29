@@ -5,7 +5,8 @@ import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import {Contact, ContactService} from "./ContactEditor/ContactEditor";
+import {Contact, ContactService} from "../ContactEditor/ContactEditorNavigator";
+import {TW_CYAN_300} from "../Theme";
 import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
@@ -74,6 +75,7 @@ const ClientLI = ({
         disableBuiltInState={true}
         isChecked={isChecked}
         onPress={onCheckboxPress}
+        fillColor={TW_CYAN_300}
       />
       <View className="shrink flex flex-col col-nowrap justify-start items-start">
         <Text className={`text-base text-black ${isChecked && "font-bold"}`}>
@@ -81,7 +83,9 @@ const ClientLI = ({
         </Text>
         {isChecked && contact && onEditPress && (
           <Text
-            className="shrink text-base text-black border border-orange-300 rounded-lg bg-white p-2 mt-1"
+            className={
+              "shrink text-base text-black border border-gray-300 rounded-lg bg-white p-2 mt-1"
+            }
             onPress={() => onEditPress(contact.clientId)}>
             {contactToString(contact)}
           </Text>

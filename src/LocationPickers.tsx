@@ -69,7 +69,7 @@ const LocationPickers = ({
   locations: LocationDocument;
 }) => {
   const tw = useTailwind();
-  const viewStyle = tw("rounded-lg border overflow-hidden");
+  const viewStyle = tw("rounded-lg border border-gray-300 overflow-hidden");
   const pickerStyle = tw("text-black bg-white");
 
   return (

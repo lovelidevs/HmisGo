@@ -1,17 +1,38 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Alert, Button} from "react-native";
+import {Alert} from "react-native";
 
 import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
+import {ObjectId} from "bson";
 import cloneDeep from "lodash.clonedeep";
 
+import LLHeaderButton from "../LLComponents/LLHeaderButton";
 import {RootStackParamList} from "../NavigationStack";
 import {RealmStateContext} from "../RealmStateProvider";
+import {TW_CYAN_300, TW_GRAY_800} from "../Theme";
 import CategoryEditor from "./CategoryEditor";
-import ContactEditor, {Contact} from "./ContactEditor";
+import ContactEditor from "./ContactEditor";
 import ServiceEditor from "./ServiceEditor";
+
+export type Contact = {
+  clientId: ObjectId;
+  timestamp: string;
+  cityUUID: string;
+  locationCategoryUUID: string;
+  location: string;
+  services: ContactService[];
+};
+
+export type ContactService = {
+  uuid: string;
+  service: string;
+  text?: string;
+  count?: number;
+  units?: string;
+  list?: string[];
+};
 
 export type ContactEditorStackParamList = {
   ContactEditor: undefined;
@@ -56,11 +77,11 @@ const ContactEditorNavigator = ({
     <ContactEditorContext.Provider value={{contact, setContact}}>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {backgroundColor: "cyan"},
-          headerTintColor: "black",
+          headerStyle: {backgroundColor: TW_GRAY_800},
+          headerTintColor: TW_CYAN_300,
           headerTitleAlign: "center",
           headerRight: () => (
-            <Button
+            <LLHeaderButton
               title="✓"
               onPress={() => {
                 const errorAlert = () =>

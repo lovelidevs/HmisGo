@@ -7,8 +7,9 @@ import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
-import MainView from "./MainView";
-import NewClientView from "./NewClientView";
+import MainView from "./MainView/MainView";
+import NewClientView from "./MainView/NewClientView";
+import {TW_CYAN_300, TW_GRAY_800} from "./Theme";
 
 export type RootStackParamList = {
   ListSelect: undefined;
@@ -27,8 +28,8 @@ const NavigationStack = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {backgroundColor: "cyan"},
-          headerTintColor: "black",
+          headerStyle: {backgroundColor: TW_GRAY_800},
+          headerTintColor: TW_CYAN_300,
           headerTitleAlign: "center",
         }}>
         {auth?.isAuthenticated ? (

@@ -2,6 +2,8 @@ import React from "react";
 
 import InputSpinner from "react-native-input-spinner";
 
+import {TW_CYAN_300} from "../Theme";
+
 const LLNumberInput = ({
   value,
   onChange,
@@ -14,7 +16,7 @@ const LLNumberInput = ({
       value={value}
       onChange={onChange}
       skin="modern"
-      color="lightgreen"
+      color={TW_CYAN_300}
     />
   );
 };

@@ -1,17 +1,17 @@
 import React, {useContext, useState} from "react";
 import {Alert, Button, Platform, View} from "react-native";
 
-import "react-native-get-random-values";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import "react-native-get-random-values";
 import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
-import {AuthContext} from "./Authentication/AuthProvider";
-import LLDateInput from "./LLComponents/LLDateInput";
-import LLTextInput from "./LLComponents/LLTextInput";
-import {RootStackParamList} from "./NavigationStack";
+import {AuthContext} from "../Authentication/AuthProvider";
+import LLDateInput from "../LLComponents/LLDateInput";
+import LLTextInput from "../LLComponents/LLTextInput";
+import {RootStackParamList} from "../NavigationStack";
 
 dayjs.extend(utc);
 

@@ -1,15 +1,18 @@
-import React, {useContext} from "react";
+import React, {useContext, useEffect} from "react";
 import {Alert, Button, ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import "react-native-get-random-values";
 import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 import {AuthContext} from "./Authentication/AuthProvider";
+import LogoutIcon from "./Icons/logout.svg";
 import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
-import {DailyList} from "./MainView";
+import LLHeaderButton from "./LLComponents/LLHeaderButton";
+import {DailyList} from "./MainView/MainView";
 import {RootStackParamList} from "./NavigationStack";
 import {RealmStateContext} from "./RealmStateProvider";
 
@@ -20,6 +23,16 @@ const DailyListSelectView = ({
 }: NativeStackScreenProps<RootStackParamList, "ListSelect">) => {
   const auth = useContext(AuthContext);
   const realmState = useContext(RealmStateContext);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <LLHeaderButton onPress={() => auth?.logOut()}>
+          <LogoutIcon width="100%" height="100%" />
+        </LLHeaderButton>
+      ),
+    });
+  }, [navigation, auth]);
 
   if (!realmState || !auth?.realm) return <LLActivityIndicatorView />;
 
@@ -62,14 +75,16 @@ const DailyListSelectView = ({
             realmState.dailyListKeys.map(key => (
               <Text
                 key={key.creator + key.timestamp}
-                className="p-2 bg-white text-lg text-black rounded-lg border border-orange-400"
+                className={
+                  "p-2 bg-white text-lg text-black rounded-lg border border-gray-300"
+                }
                 onPress={() => {
                   realmState.setDailyListId(key._id);
                   navigation.navigate("HmisGo");
                 }}>
                 <Text className="font-bold">
                   <Text>Join </Text>
-                  <Text className="text-orange-400">{key.creator + "\n"}</Text>
+                  <Text className={"text-cyan-300"}>{key.creator + "\n"}</Text>
                 </Text>
                 <Text>
                   {"created @ " + dayjs(key.timestamp).format("h:mm A on M/D")}

@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {Platform, ScrollView, Text, View} from "react-native";
+import {ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {ObjectId} from "bson";
@@ -15,24 +15,6 @@ import {
   ContactEditorContext,
   ContactEditorStackParamList,
 } from "./ContactEditorNavigator";
-
-export type Contact = {
-  clientId: ObjectId;
-  timestamp: string;
-  cityUUID: string;
-  locationCategoryUUID: string;
-  location: string;
-  services: ContactService[];
-};
-
-export type ContactService = {
-  uuid: string;
-  service: string;
-  text?: string;
-  count?: number;
-  units?: string;
-  list?: string[];
-};
 
 export type ServiceDocument = {
   _id: ObjectId;
@@ -71,10 +53,10 @@ const ContactEditor = ({
     return <LLActivityIndicatorView />;
 
   return (
-    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
+    <SafeAreaView className={"px-6"}>
       <ScrollView
         contentContainerStyle={tw(
-          "flex flex-col flex-nowrap justify-start items-stretch pb-4",
+          "flex flex-col flex-nowrap justify-start items-stretch pb-4 mt-4",
         )}>
         <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6">
           <Text className="text-xl text-black font-bold">
