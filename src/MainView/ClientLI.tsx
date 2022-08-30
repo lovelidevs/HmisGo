@@ -10,12 +10,12 @@ import {TW_CYAN_300} from "../Theme";
 import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
-  let result = client.lastName + " " + client.firstName;
+  let stringArray = [client.lastName, client.firstName];
 
-  if (client.alias) result += " (" + client.alias + ")";
-  if (client.hmisID) result += " " + client.hmisID;
+  if (client.alias) stringArray.push("(" + client.alias + ")");
+  if (client.hmisID) stringArray.push(client.hmisID);
 
-  return result;
+  return stringArray.join(" ");
 };
 
 const contactToString = (contact: Contact) => {

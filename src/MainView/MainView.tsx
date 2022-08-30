@@ -41,6 +41,8 @@ const MainView = ({
   const [locationCategoryUUID, setLocationCategoryUUID] = useState<string>("");
   const [location, setLocation] = useState<string>("");
 
+  const [searchText, setSearchText] = useState<string>("");
+
   useEffect(() => {
     if (!realmState) return;
     if (!realmState.dailyListId) navigation.goBack();
@@ -146,7 +148,13 @@ const MainView = ({
           }}
           locations={realmState.locations}
         />
-        <View className="space-y-4 my-6">
+        <LLDebouncedTextInput
+          initialValue={searchText}
+          onChange={(value: string) => setSearchText(value)}
+          placeholder="SEARCH"
+          twStyle="mt-4"
+        />
+        <View className="space-y-4 my-4">
           {(() => {
             const selectedClients: Client[] = [];
             const unselectedClients: Client[] = [];
@@ -156,10 +164,19 @@ const MainView = ({
               for (const contact of realmState.dailyList.contacts)
                 contactIds.push(contact.clientId.toString());
 
-            for (const client of realmState.clients)
+            for (const client of realmState.clients) {
+              if (
+                searchText &&
+                ![client.lastName, client.firstName, client.alias]
+                  .join(" ")
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase())
+              )
+                continue;
               if (contactIds.includes(client._id.toString()))
                 selectedClients.push(client);
               else unselectedClients.push(client);
+            }
 
             return [
               selectedClients.map(client => clientMapFn(client, true)),
