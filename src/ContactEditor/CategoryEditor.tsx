@@ -7,13 +7,15 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
-import {RealmStateContext} from "../RealmStateProvider";
-import {ContactService, Service, ServiceCategory} from "./ContactEditor";
-import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {
-  ContactEditorContext,
-  ContactEditorStackParamList,
-} from "./ContactEditorNavigator";
+  ContactService,
+  RealmStateContext,
+  Service,
+  ServiceCategory,
+} from "../RealmStateProvider";
+import ContactEditorLI, {InputType} from "./ContactEditorLI";
+import {ContactEditorStackParamList} from "./ContactEditorNavigator";
+import {ContactEditorContext} from "./ContactEditorProvider";
 
 const CategoryEditor = ({
   navigation,

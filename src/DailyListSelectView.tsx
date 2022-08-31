@@ -13,9 +13,8 @@ import LogoutIcon from "./Icons/logout.svg";
 import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
 import LLButton from "./LLComponents/LLButton";
 import LLHeaderButton from "./LLComponents/LLHeaderButton";
-import {DailyList} from "./MainView/MainView";
 import {RootStackParamList} from "./NavigationStack";
-import {RealmStateContext} from "./RealmStateProvider";
+import {DailyList, RealmStateContext} from "./RealmStateProvider";
 
 dayjs.extend(utc);
 

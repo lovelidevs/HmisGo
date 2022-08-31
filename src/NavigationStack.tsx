@@ -16,7 +16,7 @@ export type RootStackParamList = {
   HmisGo: undefined;
   NewClient: undefined;
   Login: undefined;
-  ContactEditorNavigator: {contactClientIdAsString: string};
+  ContactEditorNavigator: undefined;
 };
 
 const NavigationStack = () => {

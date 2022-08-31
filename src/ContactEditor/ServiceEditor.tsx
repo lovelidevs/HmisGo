@@ -8,14 +8,14 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {locationsArrayFromLocationDocument} from "../LocationPickers";
-import {RealmStateContext} from "../RealmStateProvider";
-import {Service} from "./ContactEditor";
-import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {
-  ContactEditorContext,
-  ContactEditorStackParamList,
   ContactService,
-} from "./ContactEditorNavigator";
+  RealmStateContext,
+  Service,
+} from "../RealmStateProvider";
+import ContactEditorLI, {InputType} from "./ContactEditorLI";
+import {ContactEditorStackParamList} from "./ContactEditorNavigator";
+import {ContactEditorContext} from "./ContactEditorProvider";
 
 const ServiceEditor = ({
   navigation,

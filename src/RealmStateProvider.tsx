@@ -13,11 +13,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
 import {AuthContext} from "./Authentication/AuthProvider";
-import {ServiceDocument} from "./ContactEditor/ContactEditor";
-import {Contact} from "./ContactEditor/ContactEditorNavigator";
-import {LocationDocument} from "./LocationPickers";
-import {DailyList} from "./MainView/MainView";
-import {Client} from "./MainView/NewClientView";
 
 dayjs.extend(utc);
 
@@ -34,10 +29,109 @@ type RealmStateType = {
   updateDailyListContacts: (contacts: Contact[]) => void;
 };
 
+export type Client = {
+  _id: ObjectId;
+  organization: string;
+  lastName: string;
+  firstName: string;
+  DOB: string;
+  alias?: string;
+  hmisID?: string;
+  serviceHistory?: ClientContact[];
+};
+
+export type ClientContact = {
+  date: string;
+  time?: string;
+  city?: string;
+  locationCategory?: string;
+  location?: string;
+  services?: ClientService[];
+};
+
+export type ClientService = {
+  service: string;
+  text?: string;
+  count?: number;
+  units?: string;
+  list?: string[];
+};
+
+export type LocationDocument = {
+  _id: ObjectId;
+  organization: string;
+  cities?: City[];
+};
+
+type City = {
+  uuid: string;
+  city: string;
+  categories?: LocationCategory[];
+};
+
+type LocationCategory = {
+  uuid: string;
+  category: string;
+  locations?: Location[];
+};
+
+type Location = {
+  uuid: string;
+  location: string;
+  places?: string[];
+};
+
+export type ServiceDocument = {
+  _id: ObjectId;
+  organization: string;
+  categories: ServiceCategory[] | null;
+};
+
+export type ServiceCategory = {
+  uuid: string;
+  category: string;
+  services: Service[] | null;
+};
+
+export type Service = {
+  uuid: string;
+  service: string;
+  inputType: string;
+  units: string | null;
+  customList: string[] | null;
+};
+
 type DailyListKey = {
   _id: ObjectId;
   creator: string;
   timestamp: string;
+};
+
+export type DailyList = {
+  _id: ObjectId;
+  organization: string;
+  creator: string;
+  timestamp: string;
+  note: string[] | null;
+  contacts: Contact[] | null;
+};
+
+export type Contact = {
+  clientId: ObjectId;
+  timestamp: string;
+  cityUUID: string;
+  locationCategoryUUID: string;
+  location: string;
+  services: ContactService[];
+};
+
+export type ContactService = {
+  uuid: string;
+  service: string;
+  text?: string;
+  count?: number;
+  units?: string;
+  list?: string[];
 };
 
 export const RealmStateContext = React.createContext<RealmStateType | null>(

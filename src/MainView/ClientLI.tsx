@@ -5,9 +5,8 @@ import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import {Contact, ContactService} from "../ContactEditor/ContactEditorNavigator";
+import {Client, Contact, ContactService} from "../RealmStateProvider";
 import {TW_CYAN_300} from "../Theme";
-import {Client} from "./NewClientView";
 
 const clientToString = (client: Client) => {
   let stringArray = [client.lastName, client.firstName];

@@ -14,11 +14,16 @@ import {ObjectId} from "bson";
 import dayjs from "dayjs";
 
 import {AuthContext} from "../Authentication/AuthProvider";
-import {Contact, ContactService} from "../ContactEditor/ContactEditorNavigator";
 import LLHeaderButton from "../LLComponents/LLHeaderButton";
 import {RootStackParamList} from "../NavigationStack";
-import {RealmStateContext} from "../RealmStateProvider";
-import {Client, ClientContact, ClientService} from "./NewClientView";
+import {
+  Client,
+  ClientContact,
+  ClientService,
+  Contact,
+  ContactService,
+  RealmStateContext,
+} from "../RealmStateProvider";
 
 const MenuButton = ({
   navigation,

@@ -2,33 +2,22 @@ import React, {useContext, useEffect, useState} from "react";
 import {Platform, ScrollView, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
-import {Contact} from "../ContactEditor/ContactEditorNavigator";
+import {ContactEditorContext} from "../ContactEditor/ContactEditorProvider";
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LLDebouncedTextInput from "../LLComponents/LLDebouncedTextInput";
 import LocationPickers from "../LocationPickers";
 import {RootStackParamList} from "../NavigationStack";
-import {RealmStateContext} from "../RealmStateProvider";
+import {Client, RealmStateContext} from "../RealmStateProvider";
 import ClientLI from "./ClientLI";
 import MenuButton from "./MenuButton";
-import {Client} from "./NewClientView";
 
 dayjs.extend(utc);
-
-export type DailyList = {
-  _id: ObjectId;
-  organization: string;
-  creator: string;
-  timestamp: string;
-  note: string[] | null;
-  contacts: Contact[] | null;
-};
 
 const MainView = ({
   navigation,
@@ -36,6 +25,7 @@ const MainView = ({
   const tw = useTailwind();
 
   const realmState = useContext(RealmStateContext);
+  const contactEditorContext = useContext(ContactEditorContext);
 
   const [cityUUID, setCityUUID] = useState<string>("");
   const [locationCategoryUUID, setLocationCategoryUUID] = useState<string>("");
@@ -96,10 +86,10 @@ const MainView = ({
           }
           onEditPress={
             isChecked
-              ? clientId =>
-                  navigation.navigate("ContactEditorNavigator", {
-                    contactClientIdAsString: clientId.toString(),
-                  })
+              ? clientId => {
+                  contactEditorContext?.setContactClientId(clientId);
+                  navigation.navigate("ContactEditorNavigator");
+                }
               : undefined
           }
         />
@@ -159,11 +149,6 @@ const MainView = ({
             const selectedClients: Client[] = [];
             const unselectedClients: Client[] = [];
 
-            const contactIds = [];
-            if (realmState.dailyList.contacts)
-              for (const contact of realmState.dailyList.contacts)
-                contactIds.push(contact.clientId.toString());
-
             for (const client of realmState.clients) {
               if (
                 searchText &&
@@ -173,10 +158,22 @@ const MainView = ({
                   .includes(searchText.toLowerCase())
               )
                 continue;
-              if (contactIds.includes(client._id.toString()))
-                selectedClients.push(client);
-              else unselectedClients.push(client);
+              unselectedClients.push(client);
             }
+
+            if (realmState.dailyList.contacts)
+              for (const contact of realmState?.dailyList?.contacts) {
+                const index = unselectedClients.findIndex(
+                  client =>
+                    client._id.toString() === contact.clientId.toString(),
+                );
+
+                console.log("Got here!");
+
+                if (index === -1) continue;
+
+                selectedClients.push(unselectedClients.splice(index, 1)[0]);
+              }
 
             return [
               selectedClients.map(client => clientMapFn(client, true)),

@@ -4,6 +4,7 @@ import {SafeAreaProvider} from "react-native-safe-area-context";
 import {TailwindProvider} from "tailwindcss-react-native";
 
 import AuthProvider from "./src/Authentication/AuthProvider";
+import ContactEditorProvider from "./src/ContactEditor/ContactEditorProvider";
 import NavigationStack from "./src/NavigationStack";
 import RealmStateProvider from "./src/RealmStateProvider";
 
@@ -13,7 +14,9 @@ const App = () => {
       <SafeAreaProvider>
         <AuthProvider>
           <RealmStateProvider>
-            <NavigationStack />
+            <ContactEditorProvider>
+              <NavigationStack />
+            </ContactEditorProvider>
           </RealmStateProvider>
         </AuthProvider>
       </SafeAreaProvider>

@@ -13,36 +13,9 @@ import LLButton from "../LLComponents/LLButton";
 import LLDateInput from "../LLComponents/LLDateInput";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {RootStackParamList} from "../NavigationStack";
+import {Client} from "../RealmStateProvider";
 
 dayjs.extend(utc);
-
-export type Client = {
-  _id: ObjectId;
-  organization: string;
-  lastName: string;
-  firstName: string;
-  DOB: string;
-  alias?: string;
-  hmisID?: string;
-  serviceHistory?: ClientContact[];
-};
-
-export type ClientContact = {
-  date: string;
-  time?: string;
-  city?: string;
-  locationCategory?: string;
-  location?: string;
-  services?: ClientService[];
-};
-
-export type ClientService = {
-  service: string;
-  text?: string;
-  count?: number;
-  units?: string;
-  list?: string[];
-};
 
 const NewClientView = ({
   navigation,

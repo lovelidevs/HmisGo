@@ -2,7 +2,6 @@ import React, {useContext} from "react";
 import {ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {ObjectId} from "bson";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
@@ -11,30 +10,8 @@ import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LocationPickers from "../LocationPickers";
 import {RealmStateContext} from "../RealmStateProvider";
 import ContactEditorLI from "./ContactEditorLI";
-import {
-  ContactEditorContext,
-  ContactEditorStackParamList,
-} from "./ContactEditorNavigator";
-
-export type ServiceDocument = {
-  _id: ObjectId;
-  organization: string;
-  categories: ServiceCategory[] | null;
-};
-
-export type ServiceCategory = {
-  uuid: string;
-  category: string;
-  services: Service[] | null;
-};
-
-export type Service = {
-  uuid: string;
-  service: string;
-  inputType: string;
-  units: string | null;
-  customList: string[] | null;
-};
+import {ContactEditorStackParamList} from "./ContactEditorNavigator";
+import {ContactEditorContext} from "./ContactEditorProvider";
 
 const ContactEditor = ({
   navigation,

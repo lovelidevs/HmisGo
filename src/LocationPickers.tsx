@@ -2,32 +2,9 @@ import React from "react";
 import {View} from "react-native";
 
 import {Picker} from "@react-native-picker/picker";
-import {ObjectId} from "bson";
 import {useTailwind} from "tailwindcss-react-native";
 
-export type LocationDocument = {
-  _id: ObjectId;
-  organization: string;
-  cities?: City[];
-};
-
-type City = {
-  uuid: string;
-  city: string;
-  categories?: LocationCategory[];
-};
-
-type LocationCategory = {
-  uuid: string;
-  category: string;
-  locations?: Location[];
-};
-
-type Location = {
-  uuid: string;
-  location: string;
-  places?: string[];
-};
+import {LocationDocument} from "./RealmStateProvider";
 
 type LocationStrings = {
   cityUUID: string;
