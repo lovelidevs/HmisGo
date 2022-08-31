@@ -2,7 +2,7 @@ import React from "react";
 import {Platform, Pressable, Switch, Text, View} from "react-native";
 
 import LLNumberInput from "../LLComponents/LLNumberInput";
-import {TW_CYAN_300, TW_CYAN_600, TW_GRAY_300, TW_GRAY_500} from "../Theme";
+import {TW_CYAN_300, TW_CYAN_400, TW_GRAY_300, TW_GRAY_500} from "../Theme";
 
 export enum InputType {
   TOGGLE = "Toggle",

@@ -3,7 +3,7 @@ import {Pressable, Text, View} from "react-native";
 
 import {useTailwind} from "tailwindcss-react-native";
 
-import {TW_CYAN_300, TW_CYAN_600} from "../Theme";
+import {TW_CYAN_300, TW_CYAN_400} from "../Theme";
 
 type LLHeaderButtonProps = {
   onPress: () => void;
@@ -25,7 +25,7 @@ const LLHeaderButton = React.forwardRef<Text, LLHeaderButtonProps>(
                 ref={ref}
                 style={
                   pressed
-                    ? tw(`${baseTextStyle} text-cyan-600`)
+                    ? tw(`${baseTextStyle} text-cyan-400`)
                     : tw(`${baseTextStyle} text-cyan-300`)
                 }>
                 {title}
@@ -35,7 +35,7 @@ const LLHeaderButton = React.forwardRef<Text, LLHeaderButtonProps>(
             return (
               <View className="w-6 h-6">
                 {React.cloneElement(children, {
-                  color: pressed ? TW_CYAN_600 : TW_CYAN_300,
+                  color: pressed ? TW_CYAN_400 : TW_CYAN_300,
                 })}
               </View>
             );
