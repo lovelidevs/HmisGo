@@ -168,8 +168,6 @@ const MainView = ({
                     client._id.toString() === contact.clientId.toString(),
                 );
 
-                console.log("Got here!");
-
                 if (index === -1) continue;
 
                 selectedClients.push(unselectedClients.splice(index, 1)[0]);

@@ -72,7 +72,6 @@ const NewClientView = ({
             onPress={() => {
               if (!lastName) return Alert.alert("", "last name required");
               if (!firstName) return Alert.alert("", "first name required");
-              if (!DOB) return Alert.alert("", "date of birth required");
 
               if (!auth?.realm) return;
 
@@ -81,9 +80,13 @@ const NewClientView = ({
                 _id: new ObjectId(),
                 lastName: lastName.trim(),
                 firstName: firstName.trim(),
-                DOB: DOB.local().format("YYYY-MM-DD"),
               };
 
+              if (DOB)
+                properties = {
+                  ...properties,
+                  DOB: DOB.local().format("YYYY-MM-DD"),
+                };
               if (alias) properties = {...properties, alias: alias.trim()};
               if (hmisID) properties = {...properties, hmisID: hmisID.trim()};
 

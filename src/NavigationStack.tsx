@@ -9,12 +9,14 @@ import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
 import MainView from "./MainView/MainView";
 import NewClientView from "./MainView/NewClientView";
+import ReviewView from "./MainView/ReviewView";
 import {TW_CYAN_300, TW_GRAY_800} from "./Theme";
 
 export type RootStackParamList = {
   ListSelect: undefined;
   HmisGo: undefined;
   NewClient: undefined;
+  Review: undefined;
   Login: undefined;
   ContactEditorNavigator: undefined;
 };
@@ -48,6 +50,11 @@ const NavigationStack = () => {
               name="NewClient"
               component={NewClientView}
               options={{title: "New Client", presentation: "modal"}}
+            />
+            <Stack.Screen
+              name="Review"
+              component={ReviewView}
+              options={{title: "Review", presentation: "modal"}}
             />
             <Stack.Screen
               name="ContactEditorNavigator"

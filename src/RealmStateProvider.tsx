@@ -34,7 +34,7 @@ export type Client = {
   organization: string;
   lastName: string;
   firstName: string;
-  DOB: string;
+  DOB?: string;
   alias?: string;
   hmisID?: string;
   serviceHistory?: ClientContact[];

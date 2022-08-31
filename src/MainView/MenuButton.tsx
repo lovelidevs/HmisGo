@@ -141,7 +141,7 @@ const MenuButton = ({
     }
   };
 
-  const menuItems = ["Submit", "New Client", "Logout"];
+  const menuItems = ["Submit", "New Client", "Review", "Logout"];
 
   const handlePress = (buttonIndex: number | undefined) => {
     switch (buttonIndex) {
@@ -152,6 +152,9 @@ const MenuButton = ({
         navigation.navigate("NewClient");
         break;
       case 2:
+        navigation.navigate("Review");
+        break;
+      case 3:
         auth?.logOut();
         break;
     }

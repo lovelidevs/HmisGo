@@ -52,7 +52,7 @@ const ContactEditorLI = ({
                 onValueChange={onToggleChange}
                 {...((): SwitchStyleProps => {
                   const switchStyleProps: SwitchStyleProps = {
-                    trackColor: {true: TW_CYAN_600, false: TW_GRAY_500},
+                    trackColor: {true: TW_CYAN_400, false: TW_GRAY_500},
                     thumbColor: toggleValue ? TW_CYAN_300 : TW_GRAY_300,
                   };
 

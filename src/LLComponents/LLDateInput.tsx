@@ -11,11 +11,13 @@ const LLDateInput = ({
   value,
   onChange,
   placeholder,
+  dateFormat,
   twStyles,
 }: {
   value: dayjs.Dayjs | null;
   onChange: (value: dayjs.Dayjs) => void;
   placeholder?: string;
+  dateFormat?: string;
   twStyles?: string;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -27,8 +29,8 @@ const LLDateInput = ({
           onPress={() => setOpen(true)}
           className={`text-lg p-2 bg-white ${twStyles}`}>
           {value ? (
-            <Text className="text-black">
-              {value.local().format("M/D/YYYY")}
+            <Text className="text-gray-800">
+              {value.local().format(dateFormat ? dateFormat : "M/D/YYYY")}
             </Text>
           ) : (
             <Text className="text-gray-300">{placeholder}</Text>
