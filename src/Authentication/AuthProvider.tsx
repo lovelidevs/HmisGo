@@ -176,6 +176,8 @@ type UserCustomData = {
 type AuthContextType = {
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
+  registerUser: (email: string, password: string) => Promise<void>;
+  resendConfirmation: (email: string) => Promise<void>;
   isAuthenticated: boolean;
   user: Realm.User | null;
   email: string | null;
@@ -257,11 +259,29 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
     setUser(null);
   };
 
+  const registerUser = async (email: string, password: string) => {
+    try {
+      await app.emailPasswordAuth.registerUser({email, password});
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const resendConfirmation = async (email: string) => {
+    try {
+      await app.emailPasswordAuth.resendConfirmationEmail({email});
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         logIn,
         logOut,
+        registerUser,
+        resendConfirmation,
         isAuthenticated: user !== null,
         user,
         email: user ? (user.customData as UserCustomData).email : null,

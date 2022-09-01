@@ -1,14 +1,18 @@
 import React, {useContext, useState} from "react";
 import {Alert, View} from "react-native";
 
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 import LLButton from "../LLComponents/LLButton";
 import LLLink from "../LLComponents/LLLink";
 import LLTextInput from "../LLComponents/LLTextInput";
+import {RootStackParamList} from "../NavigationStack";
 import {AuthContext} from "./AuthProvider";
 
-const Login = () => {
+const Login = ({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, "Login">) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -52,7 +56,12 @@ const Login = () => {
               }
             }}
           />
-          <LLButton title="Sign Up" onPress={() => {}} />
+          <LLButton
+            title="Sign Up"
+            onPress={() => {
+              navigation.navigate("SignUp", {email: email});
+            }}
+          />
         </View>
       </View>
     </SafeAreaView>

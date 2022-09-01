@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
+import SignUp from "./Authentication/SignUp";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
 import MainView from "./MainView/MainView";
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   NewClient: undefined;
   Review: undefined;
   Login: undefined;
+  SignUp: {email: string};
   ContactEditorNavigator: undefined;
 };
 
@@ -63,7 +65,18 @@ const NavigationStack = () => {
             />
           </>
         ) : (
-          <Stack.Screen name="Login" component={Login} />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{title: "Login"}}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUp}
+              options={{title: "Sign Up"}}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -12,7 +12,7 @@ const LLTextInput = ({
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  type?: string;
+  type?: "email" | "password";
   multiline?: boolean;
   twStyle?: string;
 }) => {
