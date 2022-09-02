@@ -24,7 +24,7 @@ export type RootStackParamList = {
 };
 
 const NavigationStack = () => {
-  const auth = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   const Stack = createNativeStackNavigator();
 
@@ -36,7 +36,7 @@ const NavigationStack = () => {
           headerTintColor: TW_CYAN_300,
           headerTitleAlign: "center",
         }}>
-        {auth?.isAuthenticated ? (
+        {authContext?.isAuthenticated ? (
           <>
             <Stack.Screen
               name="DailyListSelect"

@@ -213,7 +213,6 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
       }
 
       try {
-        if (realm) realm.close();
         const result = await Realm.open({
           schema: [
             clientSchema,
@@ -237,6 +236,10 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
           },
         });
         setRealm(result);
+        return () => {
+          result.close();
+          setRealm(null);
+        };
       } catch (error) {
         Alert.alert("Error opening Realm", String(error));
       }

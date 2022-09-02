@@ -1,10 +1,10 @@
-import React from "react";
+import React, {useContext} from "react";
 import {View} from "react-native";
 
 import {Picker} from "@react-native-picker/picker";
 import {useTailwind} from "tailwindcss-react-native";
 
-import {LocationDocument} from "./RealmStateProvider";
+import {LocationContext} from "./Realm/LocationProvider";
 
 type LocationStrings = {
   cityUUID: string;
@@ -12,40 +12,17 @@ type LocationStrings = {
   location: string;
 };
 
-export const locationsArrayFromLocationDocument = (
-  document: LocationDocument,
-): string[] => {
-  if (!document.cities) return [];
-
-  const result: string[] = [];
-
-  for (const city of document.cities)
-    if (city.categories)
-      for (const category of city.categories)
-        if (category.locations)
-          for (const location of category.locations) {
-            result.push(location.location);
-
-            if (location.places)
-              for (const place of location.places)
-                result.push(location.location + ": " + place);
-          }
-
-  return result.sort((a, b) =>
-    a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase()),
-  );
-};
-
 const LocationPickers = ({
   value,
   onChange,
-  locations,
 }: {
   value: LocationStrings;
   onChange: (value: LocationStrings) => void;
-  locations: LocationDocument;
 }) => {
   const tw = useTailwind();
+
+  const locationContext = useContext(LocationContext);
+
   const viewStyle = tw("rounded-lg border border-gray-300 overflow-hidden");
   const pickerStyle = tw("text-black bg-white");
 
@@ -68,13 +45,14 @@ const LocationPickers = ({
             label={value.cityUUID ? "" : "SELECT CITY"}
             value={""}
           />
-          {locations.cities?.map(cityObject => (
-            <Picker.Item
-              key={cityObject.uuid}
-              label={cityObject.city}
-              value={cityObject.uuid}
-            />
-          ))}
+          {locationContext &&
+            locationContext.locations?.cities?.map(cityObject => (
+              <Picker.Item
+                key={cityObject.uuid}
+                label={cityObject.city}
+                value={cityObject.uuid}
+              />
+            ))}
         </Picker>
       </View>
       <View style={viewStyle}>
@@ -95,7 +73,7 @@ const LocationPickers = ({
             value={""}
           />
           {(() => {
-            const tempCity = locations.cities?.find(
+            const tempCity = locationContext?.locations?.cities?.find(
               cityObject => cityObject.uuid === value.cityUUID,
             );
             if (!tempCity) return;
@@ -128,7 +106,7 @@ const LocationPickers = ({
             value={""}
           />
           {(() => {
-            const tempCity = locations.cities?.find(
+            const tempCity = locationContext?.locations?.cities?.find(
               cityObject => cityObject.uuid === value.cityUUID,
             );
             if (!tempCity) return;

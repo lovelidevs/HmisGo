@@ -5,9 +5,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {useTailwind} from "tailwindcss-react-native";
 
-import {AuthContext} from "../Authentication/AuthProvider";
 import LLDateInput from "../LLComponents/LLDateInput";
-import {Client, ClientService} from "../RealmStateProvider";
+import {ClientContext, ClientService} from "../Realm/ClientProvider";
 import ReviewContactLI from "./ReviewContactLI";
 
 dayjs.extend(utc);
@@ -25,7 +24,7 @@ export type ReviewContact = {
 const ReviewView = () => {
   const tw = useTailwind();
 
-  const auth = useContext(AuthContext);
+  const clientContext = useContext(ClientContext);
 
   const [date, setDate] = useState<dayjs.Dayjs | null>(null);
   const [reviewContacts, setReviewContacts] = useState<ReviewContact[] | null>(
@@ -33,29 +32,19 @@ const ReviewView = () => {
   );
 
   useEffect(() => {
-    if (!auth?.realm || !date) return setReviewContacts(null);
-
-    const dateString = date.local().format("YYYY-MM-DD");
+    if (!date) return setReviewContacts(null);
+    if (!clientContext)
+      return Alert.alert("", "Unable to connect to clients collection");
 
     const result: ReviewContact[] = [];
 
     try {
-      let collection = auth?.realm
-        ?.objects("client")
-        .filtered(`ANY serviceHistory.date == '${dateString}'`);
-
-      if (!collection)
-        return Alert.alert(
-          "Realm Error",
-          "Unable to query objects of type client",
-        );
-
-      const clients = collection as unknown as Client[];
+      const clients = clientContext.getClientsWithContactOnDate(date);
 
       for (const client of clients)
         if (client.serviceHistory)
           for (const contact of client.serviceHistory)
-            if (contact.date === dateString)
+            if (contact.date === date.local().format("YYYY-MM-DD"))
               result.push({
                 lastName: client.lastName,
                 firstName: client.firstName,
@@ -76,7 +65,10 @@ const ReviewView = () => {
     });
 
     setReviewContacts(result);
-  }, [auth?.realm, date]);
+  }, [date, clientContext]);
+
+  // TODO: Add notes
+  // TODO: Add something if there are no notes or contacts -> sorry, nothing to see here
 
   return (
     <SafeAreaView>
@@ -92,6 +84,7 @@ const ReviewView = () => {
         </View>
         <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">
           {reviewContacts &&
+            reviewContacts.length > 0 &&
             reviewContacts.map(contact => (
               <View
                 key={

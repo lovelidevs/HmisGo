@@ -2,8 +2,6 @@ import React, {useContext, useEffect} from "react";
 import {Alert, ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import "react-native-get-random-values";
-import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -14,56 +12,49 @@ import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
 import LLButton from "./LLComponents/LLButton";
 import LLHeaderButton from "./LLComponents/LLHeaderButton";
 import {RootStackParamList} from "./NavigationStack";
-import {DailyList, RealmStateContext} from "./RealmStateProvider";
+import {DailyListContext} from "./Realm/DailyListProvider";
 
 dayjs.extend(utc);
 
 const DailyListSelectView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "ListSelect">) => {
-  const auth = useContext(AuthContext);
-  const realmState = useContext(RealmStateContext);
+  const authContext = useContext(AuthContext);
+  const dailyListContext = useContext(DailyListContext);
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <LLHeaderButton onPress={() => auth?.logOut()}>
+        <LLHeaderButton onPress={() => authContext?.logOut()}>
           <LogoutIcon width="100%" height="100%" />
         </LLHeaderButton>
       ),
     });
-  }, [navigation, auth]);
+  }, [navigation, authContext]);
 
-  if (!realmState || !auth?.realm) return <LLActivityIndicatorView />;
+  if (!dailyListContext) return <LLActivityIndicatorView />;
 
   return (
     <SafeAreaView>
       <ScrollView>
         <View
           className={`h-full p-6 flex flex-col flex-nowrap justify-start items-stretch ${
-            realmState.dailyListKeys && "space-y-4"
+            dailyListContext.dailyListKeys && "space-y-4"
           }`}>
           <View className="">
             <LLButton
               title="Create New Daily List"
               onPress={() => {
-                if (!auth.realm) return;
-
-                const newDailyList: DailyList = {
-                  _id: new ObjectId(),
-                  organization: auth.organization ? auth.organization : "",
-                  creator: auth.email ? auth.email.split("@")[0] : "",
-                  timestamp: dayjs.utc().toISOString(),
-                  note: [],
-                  contacts: [],
-                };
+                if (!dailyListContext)
+                  return Alert.alert(
+                    "",
+                    "Unable to connect to daily list collection",
+                  );
 
                 try {
-                  auth.realm.write(() => {
-                    auth.realm?.create("dailylist", newDailyList);
-                  });
-
-                  realmState.setDailyListId(newDailyList._id);
+                  dailyListContext.setDailyListId(
+                    dailyListContext.createDailyList(),
+                  );
                   navigation.navigate("HmisGo");
                 } catch (error) {
                   Alert.alert("", String(error));
@@ -71,15 +62,15 @@ const DailyListSelectView = ({
               }}
             />
           </View>
-          {realmState.dailyListKeys &&
-            realmState.dailyListKeys.map(key => (
+          {dailyListContext.dailyListKeys &&
+            dailyListContext.dailyListKeys.map(key => (
               <Text
                 key={key.creator + key.timestamp}
                 className={
                   "p-2 bg-white text-lg text-black rounded-lg border border-gray-300"
                 }
                 onPress={() => {
-                  realmState.setDailyListId(key._id);
+                  dailyListContext.setDailyListId(key._id);
                   navigation.navigate("HmisGo");
                 }}>
                 <Text className="font-bold">

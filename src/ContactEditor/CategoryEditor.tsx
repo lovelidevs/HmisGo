@@ -7,12 +7,12 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
+import {ContactService} from "../Realm/DailyListProvider";
 import {
-  ContactService,
-  RealmStateContext,
   Service,
   ServiceCategory,
-} from "../RealmStateProvider";
+  ServiceContext,
+} from "../Realm/ServiceProvider";
 import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {ContactEditorStackParamList} from "./ContactEditorNavigator";
 import {ContactEditorContext} from "./ContactEditorProvider";
@@ -24,15 +24,15 @@ const CategoryEditor = ({
   const tw = useTailwind();
   const {categoryUUID} = route.params;
 
-  const realmState = useContext(RealmStateContext);
+  const serviceContext = useContext(ServiceContext);
   const editorContext = useContext(ContactEditorContext);
 
   const [category, setCategory] = useState<ServiceCategory | null>(null);
 
   useEffect(() => {
-    if (category || !realmState?.services) return;
+    if (category || !serviceContext?.services) return;
 
-    const result = realmState.services.categories?.find(
+    const result = serviceContext.services.categories?.find(
       cat => cat.uuid === categoryUUID,
     );
 
@@ -40,7 +40,7 @@ const CategoryEditor = ({
 
     navigation.setOptions({title: result.category});
     setCategory(result);
-  }, [category, realmState?.services, categoryUUID, navigation]);
+  }, [category, serviceContext?.services, categoryUUID, navigation]);
 
   if (!category || !editorContext?.contact) return <LLActivityIndicatorView />;
 
@@ -52,7 +52,7 @@ const CategoryEditor = ({
   } => {
     return {
       toggleValue: (() => {
-        const contactService = editorContext?.contact?.services?.find(
+        const contactService = editorContext.contact?.services?.find(
           serv => serv.uuid === service.uuid,
         );
 

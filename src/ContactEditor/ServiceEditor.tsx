@@ -7,12 +7,9 @@ import {SafeAreaView} from "react-native-safe-area-context";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LLTextInput from "../LLComponents/LLTextInput";
-import {locationsArrayFromLocationDocument} from "../LocationPickers";
-import {
-  ContactService,
-  RealmStateContext,
-  Service,
-} from "../RealmStateProvider";
+import {ContactService} from "../Realm/DailyListProvider";
+import {LocationContext} from "../Realm/LocationProvider";
+import {Service, ServiceContext} from "../Realm/ServiceProvider";
 import ContactEditorLI, {InputType} from "./ContactEditorLI";
 import {ContactEditorStackParamList} from "./ContactEditorNavigator";
 import {ContactEditorContext} from "./ContactEditorProvider";
@@ -23,15 +20,16 @@ const ServiceEditor = ({
 }: NativeStackScreenProps<ContactEditorStackParamList, "ServiceEditor">) => {
   const {categoryUUID, serviceUUID} = route.params;
 
-  const realmState = useContext(RealmStateContext);
+  const locationContext = useContext(LocationContext);
+  const serviceContext = useContext(ServiceContext);
   const editorContext = useContext(ContactEditorContext);
 
   const [service, setService] = useState<Service | null>(null);
 
   useEffect(() => {
-    if (service || !realmState?.services) return;
+    if (service || !serviceContext?.services) return;
 
-    const category = realmState.services.categories?.find(
+    const category = serviceContext.services.categories?.find(
       cat => cat.uuid === categoryUUID,
     );
     if (!category) return Alert.alert("", "Unable to find services category");
@@ -41,9 +39,15 @@ const ServiceEditor = ({
 
     navigation.setOptions({title: result.service});
     setService(result);
-  }, [service, realmState?.services, categoryUUID, serviceUUID, navigation]);
+  }, [
+    service,
+    serviceContext?.services,
+    categoryUUID,
+    serviceUUID,
+    navigation,
+  ]);
 
-  if (!service || !editorContext?.contact || !realmState?.locations)
+  if (!service || !editorContext?.contact || !locationContext?.locations)
     return <LLActivityIndicatorView />;
 
   const toggleProps = (
@@ -142,10 +146,8 @@ const ServiceEditor = ({
             return (
               <ScrollView>
                 <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 my-4">
-                  {realmState.locations &&
-                    locationsArrayFromLocationDocument(
-                      realmState.locations,
-                    ).map(listItem => (
+                  {locationContext.locations &&
+                    locationContext.getAllLocations().map(listItem => (
                       <View key={listItem}>
                         <ContactEditorLI
                           label={listItem}

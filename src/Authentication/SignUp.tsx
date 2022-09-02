@@ -12,7 +12,7 @@ import {AuthContext} from "./AuthProvider";
 const SignUp = ({
   route,
 }: NativeStackScreenProps<RootStackParamList, "SignUp">) => {
-  const auth = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
 
   const [email, setEmail] = useState<string>(route.params.email);
   const [emailConfirm, setEmailConfirm] = useState<string>("");
@@ -73,13 +73,13 @@ const SignUp = ({
 
               if (confirmationEmailSent)
                 try {
-                  await auth?.resendConfirmation(email);
+                  await authContext?.resendConfirmation(email);
                 } catch (error) {
                   return Alert.alert("", String(error));
                 }
               else {
                 try {
-                  await auth?.registerUser(email, password);
+                  await authContext?.registerUser(email, password);
                 } catch (error) {
                   return Alert.alert("", String(error));
                 }

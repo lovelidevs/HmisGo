@@ -15,7 +15,7 @@ const LLDebouncedTextInput = ({
   initialValue: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  type?: string;
+  type?: "email" | "password";
   multiline?: boolean;
   twStyle?: string;
 }) => {

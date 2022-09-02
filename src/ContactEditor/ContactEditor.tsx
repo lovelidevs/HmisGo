@@ -8,7 +8,9 @@ import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LocationPickers from "../LocationPickers";
-import {RealmStateContext} from "../RealmStateProvider";
+import {ClientContext} from "../Realm/ClientProvider";
+import {LocationContext} from "../Realm/LocationProvider";
+import {ServiceContext} from "../Realm/ServiceProvider";
 import ContactEditorLI from "./ContactEditorLI";
 import {ContactEditorStackParamList} from "./ContactEditorNavigator";
 import {ContactEditorContext} from "./ContactEditorProvider";
@@ -18,13 +20,15 @@ const ContactEditor = ({
 }: NativeStackScreenProps<ContactEditorStackParamList, "ContactEditor">) => {
   const tw = useTailwind();
 
-  const realmState = useContext(RealmStateContext);
+  const locationContext = useContext(LocationContext);
+  const serviceContext = useContext(ServiceContext);
+  const clientContext = useContext(ClientContext);
   const editorContext = useContext(ContactEditorContext);
 
   if (
-    !realmState?.clients ||
-    !realmState?.locations ||
-    !realmState?.services ||
+    !locationContext?.locations ||
+    !serviceContext?.services ||
+    !clientContext?.clients ||
     !editorContext?.contact
   )
     return <LLActivityIndicatorView />;
@@ -38,7 +42,7 @@ const ContactEditor = ({
         <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6">
           <Text className="text-xl text-black font-bold">
             {(() => {
-              const client = realmState.clients.find(value => {
+              const client = clientContext.clients.find(value => {
                 if (!editorContext.contact) return;
                 return (
                   value._id.toString() ===
@@ -72,13 +76,12 @@ const ContactEditor = ({
 
             editorContext.setContact(contactClone);
           }}
-          locations={realmState.locations}
         />
         <View className="mt-4">
           <Text className="text-xl text-black font-bold">SERVICES</Text>
         </View>
         <View className="mt-4 flex flex-col flex-nowrap justify-start items-stretch space-y-2">
-          {realmState.services.categories?.map(category => (
+          {serviceContext.services.categories?.map(category => (
             <View key={category.uuid}>
               <ContactEditorLI
                 label={category.category}

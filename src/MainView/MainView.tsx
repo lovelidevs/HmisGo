@@ -13,7 +13,8 @@ import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import LLDebouncedTextInput from "../LLComponents/LLDebouncedTextInput";
 import LocationPickers from "../LocationPickers";
 import {RootStackParamList} from "../NavigationStack";
-import {Client, RealmStateContext} from "../RealmStateProvider";
+import {Client, ClientContext} from "../Realm/ClientProvider";
+import {DailyListContext} from "../Realm/DailyListProvider";
 import ClientLI from "./ClientLI";
 import MenuButton from "./MenuButton";
 
@@ -24,7 +25,8 @@ const MainView = ({
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
   const tw = useTailwind();
 
-  const realmState = useContext(RealmStateContext);
+  const clientContext = useContext(ClientContext);
+  const dailyListContext = useContext(DailyListContext);
   const contactEditorContext = useContext(ContactEditorContext);
 
   const [cityUUID, setCityUUID] = useState<string>("");
@@ -34,9 +36,8 @@ const MainView = ({
   const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
-    if (!realmState) return;
-    if (!realmState.dailyListId) navigation.goBack();
-  }, [navigation, realmState, realmState?.dailyListId]);
+    if (!dailyListContext?.dailyListId) navigation.goBack();
+  }, [navigation, dailyListContext?.dailyListId]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -47,7 +48,7 @@ const MainView = ({
   // TODO: Change the clients into a flatlist
 
   const clientMapFn = (client: Client, isChecked: boolean) => {
-    if (!realmState?.dailyList) return;
+    if (!dailyListContext?.dailyList) return;
 
     return (
       <View key={String(client._id)}>
@@ -55,7 +56,9 @@ const MainView = ({
           client={client}
           isChecked={isChecked}
           onCheckboxPress={() => {
-            let contactsClone = cloneDeep(realmState?.dailyList?.contacts);
+            let contactsClone = cloneDeep(
+              dailyListContext?.dailyList?.contacts,
+            );
             if (!contactsClone) contactsClone = [];
 
             if (isChecked) {
@@ -74,11 +77,11 @@ const MainView = ({
                 services: [],
               });
 
-            realmState.updateDailyListContacts(contactsClone);
+            dailyListContext.updateDailyListContacts(contactsClone);
           }}
           contact={
             isChecked
-              ? realmState.dailyList.contacts?.find(
+              ? dailyListContext.dailyList.contacts?.find(
                   contact =>
                     contact.clientId.toString() === client._id.toString(),
                 )
@@ -97,13 +100,7 @@ const MainView = ({
     );
   };
 
-  if (
-    !realmState ||
-    !realmState.clients ||
-    !realmState.locations ||
-    !realmState.services ||
-    !realmState.dailyList
-  )
+  if (!clientContext?.clients || !dailyListContext?.dailyList)
     return <LLActivityIndicatorView />;
 
   return (
@@ -114,12 +111,14 @@ const MainView = ({
         )}>
         <LLDebouncedTextInput
           initialValue={
-            realmState.dailyList.note
-              ? realmState.dailyList.note?.join("\n")
+            dailyListContext.dailyList.note
+              ? dailyListContext.dailyList.note?.join("\n")
               : ""
           }
           onChange={value => {
-            realmState.updateDailyListNote(value ? value.split("\n") : []);
+            dailyListContext.updateDailyListNote(
+              value ? value.split("\n") : [],
+            );
           }}
           placeholder="NOTES"
           multiline={true}
@@ -136,7 +135,6 @@ const MainView = ({
             setLocationCategoryUUID(value.locationCategoryUUID);
             setLocation(value.location);
           }}
-          locations={realmState.locations}
         />
         <LLDebouncedTextInput
           initialValue={searchText}
@@ -149,7 +147,7 @@ const MainView = ({
             const selectedClients: Client[] = [];
             const unselectedClients: Client[] = [];
 
-            for (const client of realmState.clients) {
+            for (const client of clientContext.clients) {
               if (
                 searchText &&
                 ![client.lastName, client.firstName, client.alias]
@@ -161,8 +159,8 @@ const MainView = ({
               unselectedClients.push(client);
             }
 
-            if (realmState.dailyList.contacts)
-              for (const contact of realmState?.dailyList?.contacts) {
+            if (dailyListContext.dailyList.contacts)
+              for (const contact of dailyListContext?.dailyList?.contacts) {
                 const index = unselectedClients.findIndex(
                   client =>
                     client._id.toString() === contact.clientId.toString(),

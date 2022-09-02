@@ -9,7 +9,7 @@ import cloneDeep from "lodash.clonedeep";
 
 import LLHeaderButton from "../LLComponents/LLHeaderButton";
 import {RootStackParamList} from "../NavigationStack";
-import {RealmStateContext} from "../RealmStateProvider";
+import {DailyListContext} from "../Realm/DailyListProvider";
 import {TW_CYAN_300, TW_GRAY_800} from "../Theme";
 import CategoryEditor from "./CategoryEditor";
 import ContactEditor from "./ContactEditor";
@@ -25,7 +25,7 @@ export type ContactEditorStackParamList = {
 const ContactEditorNavigator = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "ContactEditorNavigator">) => {
-  const realmState = useContext(RealmStateContext);
+  const dailyListContext = useContext(DailyListContext);
   const editorContext = useContext(ContactEditorContext);
 
   const Stack = createNativeStackNavigator();
@@ -43,10 +43,12 @@ const ContactEditorNavigator = ({
               const errorAlert = () =>
                 Alert.alert("Error", "Unable to save contact edits");
 
-              if (!editorContext?.contact || !realmState?.dailyList)
+              if (!editorContext?.contact || !dailyListContext?.dailyList)
                 return errorAlert();
 
-              const contactsClone = cloneDeep(realmState.dailyList).contacts;
+              const contactsClone = cloneDeep(
+                dailyListContext.dailyList,
+              ).contacts;
               if (!contactsClone) return errorAlert();
 
               const index = contactsClone.findIndex(
@@ -59,7 +61,7 @@ const ContactEditorNavigator = ({
 
               contactsClone[index] = editorContext.contact;
 
-              realmState.updateDailyListContacts(contactsClone);
+              dailyListContext.updateDailyListContacts(contactsClone);
               navigation.navigate("HmisGo");
             }}
           />

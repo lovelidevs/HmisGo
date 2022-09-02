@@ -1,11 +1,13 @@
 import React from "react";
 import {Text, View} from "react-native";
 
+import "react-native-get-random-values";
 import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import {Client, Contact, ContactService} from "../RealmStateProvider";
+import {Client} from "../Realm/ClientProvider";
+import {Contact, ContactService} from "../Realm/DailyListProvider";
 import {TW_CYAN_300} from "../Theme";
 
 const clientToString = (client: Client) => {

@@ -2,18 +2,15 @@ import React, {useContext, useState} from "react";
 import {Alert, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import "react-native-get-random-values";
-import {ObjectId} from "bson";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
-import {AuthContext} from "../Authentication/AuthProvider";
 import LLButton from "../LLComponents/LLButton";
 import LLDateInput from "../LLComponents/LLDateInput";
 import LLTextInput from "../LLComponents/LLTextInput";
 import {RootStackParamList} from "../NavigationStack";
-import {Client} from "../RealmStateProvider";
+import {ClientContext} from "../Realm/ClientProvider";
 
 dayjs.extend(utc);
 
@@ -26,7 +23,7 @@ const NewClientView = ({
   const [alias, setAlias] = useState<string>("");
   const [hmisID, setHmisID] = useState<string>("");
 
-  const auth = useContext(AuthContext);
+  const clientContext = useContext(ClientContext);
 
   return (
     <SafeAreaView className="px-6">
@@ -70,40 +67,17 @@ const NewClientView = ({
           <LLButton
             title="SUBMIT"
             onPress={() => {
-              if (!lastName) return Alert.alert("", "last name required");
-              if (!firstName) return Alert.alert("", "first name required");
-
-              if (!auth?.realm) return;
-
-              let properties: object = {
-                organization: auth.organization,
-                _id: new ObjectId(),
-                lastName: lastName.trim(),
-                firstName: firstName.trim(),
-              };
-
-              if (DOB)
-                properties = {
-                  ...properties,
-                  DOB: DOB.local().format("YYYY-MM-DD"),
-                };
-              if (alias) properties = {...properties, alias: alias.trim()};
-              if (hmisID) properties = {...properties, hmisID: hmisID.trim()};
-
               try {
-                let clientObject: Realm.Object | undefined;
-                auth.realm.write(() => {
-                  clientObject = auth.realm?.create("client", properties);
-                });
+                const client = clientContext?.createClient(
+                  lastName,
+                  firstName,
+                  DOB ? DOB : undefined,
+                  alias,
+                  hmisID,
+                );
 
-                if (clientObject) {
-                  const client = clientObject as unknown as Client;
-                  Alert.alert(
-                    "",
-                    `${client.firstName} ${client.lastName} added`,
-                    [{text: "OK", onPress: () => navigation.goBack()}],
-                  );
-                }
+                if (client) navigation.goBack();
+                else Alert.alert("Error", "Unable to create client");
               } catch (error) {
                 Alert.alert("", String(error));
               }

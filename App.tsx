@@ -6,18 +6,18 @@ import {TailwindProvider} from "tailwindcss-react-native";
 import AuthProvider from "./src/Authentication/AuthProvider";
 import ContactEditorProvider from "./src/ContactEditor/ContactEditorProvider";
 import NavigationStack from "./src/NavigationStack";
-import RealmStateProvider from "./src/RealmStateProvider";
+import RealmProvider from "./src/Realm/RealmProvider";
 
 const App = () => {
   return (
     <TailwindProvider>
       <SafeAreaProvider>
         <AuthProvider>
-          <RealmStateProvider>
+          <RealmProvider>
             <ContactEditorProvider>
               <NavigationStack />
             </ContactEditorProvider>
-          </RealmStateProvider>
+          </RealmProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </TailwindProvider>
