@@ -40,8 +40,10 @@ const ServiceProvider = ({children}: {children: ReactNode}) => {
   const [services, setServices] = useState<ServiceDocument | null>(null);
 
   useEffect(() => {
+    if (!authContext?.realm) return;
+
     try {
-      const collection = authContext?.realm?.objects("service");
+      const collection = authContext.realm.objects("service");
 
       if (!collection)
         return Alert.alert("", "Unable to connect to services collection");

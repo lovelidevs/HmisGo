@@ -75,8 +75,10 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
   const [dailyList, setDailyList] = useState<DailyList | null>(null);
 
   useEffect(() => {
+    if (!authContext?.realm) return;
+
     try {
-      const collection = authContext?.realm?.objects("dailylist");
+      const collection = authContext.realm.objects("dailylist");
 
       if (!collection)
         return Alert.alert("", "Unable to connect to dailylists collection");
@@ -113,7 +115,10 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
     if (!dailyListId) {
       setDailyListRealmObject(null);
       setDailyList(null);
+      return;
     }
+
+    if (!authContext?.realm) return;
 
     try {
       const result = authContext?.realm
@@ -152,7 +157,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
     const newDailyList: DailyList = {
       _id: new ObjectId(),
       organization: authContext.organization ? authContext.organization : "",
-      creator: authContext.email ? authContext.email.split("@")[0] : "",
+      creator: authContext.userEmail ? authContext.userEmail.split("@")[0] : "",
       timestamp: dayjs.utc().toISOString(),
       note: [],
       contacts: [],

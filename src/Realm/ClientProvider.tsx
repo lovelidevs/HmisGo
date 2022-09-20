@@ -62,8 +62,10 @@ const ClientProvider = ({children}: {children: ReactNode}) => {
   const [clients, setClients] = useState<Client[] | null>(null);
 
   useEffect(() => {
+    if (!authContext?.realm) return;
+
     try {
-      const collection = authContext?.realm?.objects("client").sorted([
+      const collection = authContext.realm.objects("client").sorted([
         ["lastName", false],
         ["firstName", false],
         ["alias", false],

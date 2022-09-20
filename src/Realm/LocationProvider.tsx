@@ -50,8 +50,10 @@ const LocationProvider = ({children}: {children: ReactNode}) => {
   const [locations, setLocations] = useState<LocationDocument | null>(null);
 
   useEffect(() => {
+    if (!authContext?.realm) return;
+
     try {
-      const collection = authContext?.realm?.objects("location");
+      const collection = authContext.realm.objects("location");
 
       if (!collection)
         return Alert.alert("", "Unable to connect to locations collection");

@@ -37,33 +37,43 @@ const NavigationStack = () => {
           headerTitleAlign: "center",
         }}>
         {authContext?.isAuthenticated ? (
-          <>
-            <Stack.Screen
-              name="DailyListSelect"
-              component={DailyListSelectView}
-              options={{title: "Daily Lists"}}
-            />
-            <Stack.Screen
-              name="HmisGo"
-              component={MainView}
-              options={{title: "HMIS Go"}}
-            />
-            <Stack.Screen
-              name="NewClient"
-              component={NewClientView}
-              options={{title: "New Client", presentation: "modal"}}
-            />
-            <Stack.Screen
-              name="Review"
-              component={ReviewView}
-              options={{title: "Review", presentation: "modal"}}
-            />
-            <Stack.Screen
-              name="ContactEditorNavigator"
-              component={ContactEditorNavigator}
-              options={{headerShown: false, presentation: "modal"}}
-            />
-          </>
+          authContext?.status === "confirmed" ? (
+            <>
+              <Stack.Screen
+                name="DailyListSelect"
+                component={DailyListSelectView}
+                options={{title: "Daily Lists"}}
+              />
+              <Stack.Screen
+                name="HmisGo"
+                component={MainView}
+                options={{title: "HMIS Go"}}
+              />
+              <Stack.Screen
+                name="NewClient"
+                component={NewClientView}
+                options={{title: "New Client", presentation: "modal"}}
+              />
+              <Stack.Screen
+                name="Review"
+                component={ReviewView}
+                options={{title: "Review", presentation: "modal"}}
+              />
+              <Stack.Screen
+                name="ContactEditorNavigator"
+                component={ContactEditorNavigator}
+                options={{headerShown: false, presentation: "modal"}}
+              />
+            </>
+          ) : (
+            <>
+              <Stack.Screen
+                name="RequestAccess"
+                component={Login}
+                options={{title: "Request Access"}}
+              />
+            </>
+          )
         ) : (
           <>
             <Stack.Screen

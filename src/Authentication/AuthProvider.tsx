@@ -3,6 +3,18 @@ import {Alert} from "react-native";
 
 import Realm from "realm";
 
+const userdatumSchema = {
+  name: "userdatum",
+  properties: {
+    _id: "string",
+    email: "string",
+    organization: "string",
+    role: "string",
+    status: "string",
+  },
+  primaryKey: "_id",
+};
+
 const clientSchema = {
   name: "client",
   properties: {
@@ -169,8 +181,8 @@ type UserCustomData = {
   _id: string;
   email: string;
   organization: string;
-  role: string | null;
-  status: string | null;
+  role: string;
+  status: string;
 };
 
 type AuthContextType = {
@@ -180,7 +192,7 @@ type AuthContextType = {
   resendConfirmation: (email: string) => Promise<void>;
   isAuthenticated: boolean;
   user: Realm.User | null;
-  email: string | null;
+  userEmail: string | null;
   organization: string | null;
   role: string | null;
   status: string | null;
@@ -197,6 +209,27 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
   const [user, setUser] = useState<Realm.User | null>(app.currentUser);
   const [realm, setRealm] = useState<Realm | null>(null);
 
+  const [userEmail, setUserEmail] = useState<string>(
+    app.currentUser?.customData
+      ? (app.currentUser?.customData as UserCustomData).email
+      : "",
+  );
+  const [organization, setOrganization] = useState<string>(
+    app.currentUser?.customData
+      ? (app.currentUser?.customData as UserCustomData).organization
+      : "",
+  );
+  const [role, setRole] = useState<string>(
+    app.currentUser?.customData
+      ? (app.currentUser?.customData as UserCustomData).role
+      : "",
+  );
+  const [status, setStatus] = useState<string>(
+    app.currentUser?.customData
+      ? (app.currentUser?.customData as UserCustomData).status
+      : "",
+  );
+
   useEffect(() => {
     (async () => {
       if (!user) {
@@ -205,7 +238,6 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         return;
       }
 
-      const organization = (user.customData as UserCustomData).organization;
       if (!organization) {
         realm?.close();
         setRealm(null);
@@ -249,9 +281,43 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
   const logIn = async (email: string, password: string) => {
     try {
-      setUser(
-        await app.logIn(Realm.Credentials.emailPassword(email, password)),
+      const realmUser = await app.logIn(
+        Realm.Credentials.emailPassword(email, password),
       );
+
+      if (!app.currentUser?.customData) await createUserDatum(realmUser, email);
+
+      setUser(realmUser);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const createUserDatum = async (realmUser: Realm.User, email: string) => {
+    try {
+      const tempRealm = await Realm.open({
+        schema: [userdatumSchema],
+        sync: {user: realmUser, partitionValue: ""},
+      });
+
+      const userDatum: UserCustomData = {
+        _id: realmUser.id,
+        email,
+        organization: "",
+        role: "",
+        status: "",
+      };
+
+      tempRealm.write(() => {
+        tempRealm.create("userdatum", userDatum);
+      });
+
+      setUserEmail(email);
+      setOrganization("");
+      setRole("");
+      setStatus("");
+
+      tempRealm.close();
     } catch (error) {
       throw error;
     }
@@ -282,17 +348,15 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
     <AuthContext.Provider
       value={{
         logIn,
-        logOut,
         registerUser,
+        logOut,
         resendConfirmation,
         isAuthenticated: user !== null,
         user,
-        email: user ? (user.customData as UserCustomData).email : null,
-        organization: user
-          ? (user.customData as UserCustomData).organization
-          : null,
-        role: user ? (user.customData as UserCustomData).role : null,
-        status: user ? (user.customData as UserCustomData).status : null,
+        userEmail,
+        organization,
+        role,
+        status,
         realm,
       }}>
       {children}
