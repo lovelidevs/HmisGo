@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 
 import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
+import RequestAccess from "./Authentication/RequestAccess";
 import SignUp from "./Authentication/SignUp";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
@@ -18,9 +19,10 @@ export type RootStackParamList = {
   HmisGo: undefined;
   NewClient: undefined;
   Review: undefined;
+  ContactEditorNavigator: undefined;
+  RequestAccess: undefined;
   Login: undefined;
   SignUp: {email: string};
-  ContactEditorNavigator: undefined;
 };
 
 const NavigationStack = () => {
@@ -37,7 +39,7 @@ const NavigationStack = () => {
           headerTitleAlign: "center",
         }}>
         {authContext?.isAuthenticated ? (
-          authContext?.status === "confirmed" ? (
+          authContext?.userData?.status === "confirmed" ? (
             <>
               <Stack.Screen
                 name="DailyListSelect"
@@ -69,7 +71,7 @@ const NavigationStack = () => {
             <>
               <Stack.Screen
                 name="RequestAccess"
-                component={Login}
+                component={RequestAccess}
                 options={{title: "Request Access"}}
               />
             </>

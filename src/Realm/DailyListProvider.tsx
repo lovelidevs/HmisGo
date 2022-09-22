@@ -153,11 +153,16 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
 
   const createDailyList = (): ObjectId => {
     if (!authContext?.realm) throw "Unable to connect to Realm";
+    if (!authContext.userData) throw "Unable to access user data";
 
     const newDailyList: DailyList = {
       _id: new ObjectId(),
-      organization: authContext.organization ? authContext.organization : "",
-      creator: authContext.userEmail ? authContext.userEmail.split("@")[0] : "",
+      organization: authContext.userData.organization
+        ? authContext.userData.organization
+        : "",
+      creator: authContext.userData.email
+        ? authContext.userData.email.split("@")[0]
+        : "",
       timestamp: dayjs.utc().toISOString(),
       note: [],
       contacts: [],
@@ -235,6 +240,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
   const submitDailyList = () => {
     if (!dailyList) throw "Unable to connect to daily list";
     if (!authContext?.realm) throw "Unable to connect to Realm";
+    if (!authContext.userData) throw "Unable to access user data";
     if (!clientContext) throw "No client context";
 
     if (dailyList.note && dailyList.note.length > 0)
@@ -242,7 +248,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
         authContext.realm.write(() => {
           authContext.realm?.create("note", {
             _id: new ObjectId(),
-            organization: authContext.organization,
+            organization: authContext.userData?.organization,
             datetime: dayjs.utc().toISOString(),
             content: dailyList.note,
           });

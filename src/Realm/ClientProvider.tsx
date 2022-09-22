@@ -102,9 +102,10 @@ const ClientProvider = ({children}: {children: ReactNode}) => {
     if (!firstName) throw "first name required";
 
     if (!authContext?.realm) throw "unable to connect to realm";
+    if (!authContext.userData) throw "unable to access userData";
 
     let properties: object = {
-      organization: authContext.organization,
+      organization: authContext.userData.organization,
       _id: new ObjectId(),
       lastName: lastName.trim(),
       firstName: firstName.trim(),
