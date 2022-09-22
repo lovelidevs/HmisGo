@@ -208,17 +208,8 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
   useEffect(() => {
     (async () => {
-      if (!user) {
-        realm?.close();
-        setRealm(null);
-        return;
-      }
-
-      if (!userData?.organization) {
-        realm?.close();
-        setRealm(null);
-        return;
-      }
+      if (!user) return setRealm(null);
+      if (!userData?.organization) return setRealm(null);
 
       try {
         const result = await Realm.open({
@@ -252,8 +243,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         Alert.alert("Error opening Realm", String(error));
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, userData?.organization]);
 
   const refreshUserData = useCallback(async () => {
     if (!user) return setUserData(null);
@@ -269,17 +259,17 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
   const logIn = async (email: string, password: string) => {
     try {
-      const realmUser = await app.logIn(
-        Realm.Credentials.emailPassword(email, password),
-      );
+      await app.logIn(Realm.Credentials.emailPassword(email, password));
 
-      if (!realmUser.customData) {
+      if (!app.currentUser) throw "No current user";
+
+      if (!app.currentUser.customData) {
         // TODO: Switch the control panel to use insertUserDatum as well
-        const result = await realmUser.functions.insertUserDatum([email]);
+        const result = await app.currentUser.functions.insertUserDatum([email]);
         if (!result.insertedId) throw result;
 
         setUserData({
-          _id: realmUser.id,
+          _id: app.currentUser.id,
           email,
           organization: "",
           role: "",
@@ -287,7 +277,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         });
       }
 
-      setUser(realmUser);
+      setUser(app.currentUser);
     } catch (error) {
       throw error;
     }

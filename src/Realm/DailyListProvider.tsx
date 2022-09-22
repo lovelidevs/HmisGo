@@ -84,6 +84,8 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
         return Alert.alert("", "Unable to connect to dailylists collection");
 
       collection.addListener((coll, changes) => {
+        if (authContext?.realm?.isInTransaction) return;
+
         changes.deletions.forEach(index => {
           if (
             dailyListKeys &&
@@ -107,6 +109,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
 
       return () => collection.removeAllListeners();
     } catch (error) {
+      console.log(error);
       Alert.alert("", String(error));
     }
   }, [authContext?.realm, dailyListId, dailyListKeys]);
@@ -195,6 +198,9 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
   const updateDailyListContacts = (contacts: Contact[]) => {
     if (!dailyListRealmObject)
       return Alert.alert("Update Error", "Unable to update contacts");
+
+    if (!authContext?.realm)
+      return Alert.alert("Update Error", "Unable to connect to realm");
 
     try {
       authContext?.realm?.write(

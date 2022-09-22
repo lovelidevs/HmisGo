@@ -1,14 +1,14 @@
 import React from "react";
-import {Text, View} from "react-native";
+import {Platform, Text, View} from "react-native";
 
 import "react-native-get-random-values";
+import CheckBox from "@react-native-community/checkbox";
 import {ObjectId} from "bson";
 import dayjs from "dayjs";
-import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 import {Client} from "../Realm/ClientProvider";
 import {Contact, ContactService} from "../Realm/DailyListProvider";
-import {TW_CYAN_300} from "../Theme";
+import {TW_CYAN_300, TW_CYAN_400} from "../Theme";
 
 const clientToString = (client: Client) => {
   let stringArray = [client.lastName, client.firstName];
@@ -70,15 +70,24 @@ const ClientLI = ({
   contact?: Contact;
   onEditPress?: (ClientId: ObjectId) => void;
 }) => {
+  // TW_CYAN-300
+
   return (
     <View className="flex flex-row flex-nowrap justify-start items-center">
-      <BouncyCheckbox
-        disableBuiltInState={true}
-        isChecked={isChecked}
-        onPress={onCheckboxPress}
-        fillColor={TW_CYAN_300}
+      <CheckBox
+        value={isChecked}
+        onValueChange={onCheckboxPress}
+        {...(Platform.OS === "android" && {
+          tintColors: {true: TW_CYAN_300, false: TW_CYAN_400},
+        })}
+        {...(Platform.OS === "ios" && {
+          tintColor: TW_CYAN_400,
+          onTintColor: TW_CYAN_400,
+          onCheckColor: "white",
+          onFillColor: TW_CYAN_300,
+        })}
       />
-      <View className="shrink flex flex-col col-nowrap justify-start items-start">
+      <View className="shrink flex flex-col col-nowrap justify-start items-start ml-2">
         <Text className={`text-base text-black ${isChecked && "font-bold"}`}>
           {clientToString(client)}
         </Text>

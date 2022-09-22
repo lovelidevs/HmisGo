@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-community/checkbox": "^0.5.12",
     "@react-native-picker/picker": "^2.4.4",
     "@react-navigation/native": "^6.0.11",
     "@react-navigation/native-stack": "^6.7.0",
@@ -22,7 +23,6 @@
     "lodash.debounce": "^4.0.8",
     "react": "18.0.0",
     "react-native": "0.69.4",
-    "react-native-bouncy-checkbox": "^3.0.2",
     "react-native-date-picker": "^4.2.5",
     "react-native-get-random-values": "^1.8.0",
     "react-native-input-spinner": "^1.7.12",
