@@ -39,9 +39,9 @@ const Login = ({
         </View>
         <View>
           <LLLink
-            title="Forgot Password?"
+            title="Forgot/Reset Password"
             onPress={() => {
-              console.log("Forgot password");
+              navigation.navigate("ResetPassword", {email: email});
             }}
           />
         </View>

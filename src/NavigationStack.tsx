@@ -6,6 +6,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {AuthContext} from "./Authentication/AuthProvider";
 import Login from "./Authentication/Login";
 import RequestAccess from "./Authentication/RequestAccess";
+import ResetPassword from "./Authentication/ResetPassword";
 import SignUp from "./Authentication/SignUp";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Review: undefined;
   ContactEditorNavigator: undefined;
   RequestAccess: undefined;
+  ResetPassword: {email: string};
   Login: undefined;
   SignUp: {email: string};
 };
@@ -87,6 +89,11 @@ const NavigationStack = () => {
               name="SignUp"
               component={SignUp}
               options={{title: "Sign Up"}}
+            />
+            <Stack.Screen
+              name="ResetPassword"
+              component={ResetPassword}
+              options={{title: "Reset Password"}}
             />
           </>
         )}

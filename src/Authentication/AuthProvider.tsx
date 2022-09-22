@@ -180,6 +180,7 @@ type AuthContextType = {
   resendConfirmation: (email: string) => Promise<void>;
   refreshUserData: () => Promise<void>;
   requestAccess: (organization: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   isAuthenticated: boolean;
   user: Realm.User | null;
   userData: UserCustomData | null;
@@ -328,6 +329,14 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
     refreshUserData();
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      await app.emailPasswordAuth.sendResetPasswordEmail({email});
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -337,6 +346,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
         resendConfirmation,
         refreshUserData,
         requestAccess,
+        resetPassword,
         isAuthenticated: user !== null,
         user,
         userData,

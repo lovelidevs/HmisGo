@@ -60,7 +60,7 @@ const RequestAccess = ({
                 authContext?.userData?.organization
               }`}</Text>
               <LLButton
-                title="REFRESH"
+                title="Refresh"
                 onPress={() => {
                   authContext?.refreshUserData();
                 }}
