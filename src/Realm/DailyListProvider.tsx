@@ -233,11 +233,11 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
     return {
       date: dayjs(contact.timestamp).format("YYYY-MM-DD"),
       time: contact.timestamp,
-      city: locationContext?.cityFromUUID(contact.cityUUID),
+      city: locationContext?.cityFromUUID(contact.cityUUID)?.city,
       locationCategory: locationContext?.locationCategoryFromUUIDs(
         contact.cityUUID,
         contact.locationCategoryUUID,
-      ),
+      )?.category,
       location: contact.location ? contact.location : undefined,
       services: clientServicesFromContactServices(contact.services),
     };
