@@ -45,11 +45,19 @@ export type ContactService = {
   list?: string[];
 };
 
+export type LocationStrings = {
+  cityUUID: string;
+  locationCategoryUUID: string;
+  location: string;
+};
+
 type DailyListContextType = {
   dailyListKeys: DailyListKey[] | null;
   dailyListId: ObjectId | null;
   setDailyListId: React.Dispatch<React.SetStateAction<ObjectId | null>>;
   dailyList: DailyList | null;
+  currentLocation: LocationStrings;
+  setCurrentLocation: (locationStrings: LocationStrings) => void;
   createDailyList: () => ObjectId;
   updateDailyListNote: (note: string[]) => void;
   updateDailyListContacts: (contacts: Contact[]) => void;
@@ -73,6 +81,12 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
   const [dailyListRealmObject, setDailyListRealmObject] =
     useState<Realm.Object | null>(null);
   const [dailyList, setDailyList] = useState<DailyList | null>(null);
+
+  const [currentLocation, setCurrentLocation] = useState<LocationStrings>({
+    cityUUID: "",
+    locationCategoryUUID: "",
+    location: "",
+  });
 
   useEffect(() => {
     if (!authContext?.realm) return;
@@ -292,6 +306,9 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
         dailyListId,
         setDailyListId,
         dailyList,
+        currentLocation,
+        setCurrentLocation: (locationStrings: LocationStrings) =>
+          setCurrentLocation(locationStrings),
         createDailyList,
         updateDailyListNote,
         updateDailyListContacts,

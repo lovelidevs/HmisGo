@@ -8,6 +8,7 @@ import {
 import cloneDeep from "lodash.clonedeep";
 
 import LLHeaderButton from "../LLComponents/LLHeaderButton";
+import LocationSelect from "../LocationSelect";
 import {RootStackParamList} from "../NavigationStack";
 import {DailyListContext} from "../Realm/DailyListProvider";
 import {TW_CYAN_300, TW_GRAY_800} from "../Theme";
@@ -20,6 +21,7 @@ export type ContactEditorStackParamList = {
   ContactEditor: undefined;
   CategoryEditor: {categoryUUID: string};
   ServiceEditor: {categoryUUID: string; serviceUUID: string};
+  LocationSelect: {context: "DailyList" | "ContactEditor"};
 };
 
 const ContactEditorNavigator = ({
@@ -81,6 +83,11 @@ const ContactEditorNavigator = ({
         name="ServiceEditor"
         component={ServiceEditor}
         options={{title: "Service Editor", presentation: "card"}}
+      />
+      <Stack.Screen
+        name="LocationSelect"
+        component={LocationSelect}
+        options={{title: "Location Select", presentation: "modal"}}
       />
     </Stack.Navigator>
   );

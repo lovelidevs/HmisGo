@@ -10,8 +10,8 @@ import {useTailwind} from "tailwindcss-react-native";
 
 import {ContactEditorContext} from "../ContactEditor/ContactEditorProvider";
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
+import LLButton from "../LLComponents/LLButton";
 import LLDebouncedTextInput from "../LLComponents/LLDebouncedTextInput";
-import LocationPickers from "../LocationPickers";
 import {RootStackParamList} from "../NavigationStack";
 import {Client, ClientContext} from "../Realm/ClientProvider";
 import {DailyListContext} from "../Realm/DailyListProvider";
@@ -28,10 +28,6 @@ const MainView = ({
   const clientContext = useContext(ClientContext);
   const dailyListContext = useContext(DailyListContext);
   const contactEditorContext = useContext(ContactEditorContext);
-
-  const [cityUUID, setCityUUID] = useState<string>("");
-  const [locationCategoryUUID, setLocationCategoryUUID] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
 
   const [searchText, setSearchText] = useState<string>("");
 
@@ -71,9 +67,10 @@ const MainView = ({
               contactsClone.push({
                 clientId: client._id,
                 timestamp: dayjs.utc().toISOString(),
-                cityUUID,
-                locationCategoryUUID,
-                location,
+                cityUUID: dailyListContext.currentLocation.cityUUID,
+                locationCategoryUUID:
+                  dailyListContext.currentLocation.locationCategoryUUID,
+                location: dailyListContext.currentLocation.location,
                 services: [],
               });
 
@@ -124,16 +121,14 @@ const MainView = ({
           multiline={true}
           twStyle="mb-4"
         />
-        <LocationPickers
-          value={{
-            cityUUID,
-            locationCategoryUUID,
-            location,
-          }}
-          onChange={value => {
-            setCityUUID(value.cityUUID);
-            setLocationCategoryUUID(value.locationCategoryUUID);
-            setLocation(value.location);
+        <LLButton
+          title={
+            dailyListContext.currentLocation.location
+              ? dailyListContext.currentLocation.location
+              : "SELECT LOCATION"
+          }
+          onPress={() => {
+            navigation.navigate("LocationSelect", {context: "DailyList"});
           }}
         />
         <LLDebouncedTextInput

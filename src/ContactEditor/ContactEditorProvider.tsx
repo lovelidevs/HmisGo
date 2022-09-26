@@ -3,13 +3,20 @@ import {Alert} from "react-native";
 
 import "react-native-get-random-values";
 import {ObjectId} from "bson";
+import cloneDeep from "lodash.clonedeep";
 
-import {Contact, DailyListContext} from "../Realm/DailyListProvider";
+import {
+  Contact,
+  DailyListContext,
+  LocationStrings,
+} from "../Realm/DailyListProvider";
 
 type ContactEditorContextType = {
   contact: Contact | null;
   setContact: React.Dispatch<React.SetStateAction<Contact | null>>;
   setContactClientId: React.Dispatch<React.SetStateAction<ObjectId | null>>;
+  currentLocation: LocationStrings;
+  setCurrentLocation: (locationStrings: LocationStrings) => void;
 };
 
 export const ContactEditorContext =
@@ -36,7 +43,29 @@ const ContactEditorProvider = ({children}: {children: ReactNode}) => {
 
   return (
     <ContactEditorContext.Provider
-      value={{contact, setContact, setContactClientId}}>
+      value={{
+        contact,
+        setContact,
+        setContactClientId,
+        currentLocation: contact
+          ? {
+              cityUUID: contact.cityUUID,
+              locationCategoryUUID: contact.locationCategoryUUID,
+              location: contact.location,
+            }
+          : {cityUUID: "", locationCategoryUUID: "", location: ""},
+        setCurrentLocation: (locationStrings: LocationStrings) => {
+          if (!contact) return;
+          const contactClone = cloneDeep(contact);
+
+          contactClone.cityUUID = locationStrings.cityUUID;
+          contactClone.locationCategoryUUID =
+            locationStrings.locationCategoryUUID;
+          contactClone.location = locationStrings.location;
+
+          setContact(contactClone);
+        },
+      }}>
       {children}
     </ContactEditorContext.Provider>
   );
