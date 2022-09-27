@@ -258,19 +258,25 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
   }, [refreshUserData]);
 
   const logIn = async (email: string, password: string) => {
+    const emailToLowerCase = email.toLowerCase();
+
     try {
-      await app.logIn(Realm.Credentials.emailPassword(email, password));
+      await app.logIn(
+        Realm.Credentials.emailPassword(emailToLowerCase, password),
+      );
 
       if (!app.currentUser) throw "No current user";
 
       if (!app.currentUser.customData) {
         // TODO: Switch the control panel to use insertUserDatum as well
-        const result = await app.currentUser.functions.insertUserDatum([email]);
+        const result = await app.currentUser.functions.insertUserDatum([
+          emailToLowerCase,
+        ]);
         if (!result.insertedId) throw result;
 
         setUserData({
           _id: app.currentUser.id,
-          email: email.toLowerCase(),
+          email: emailToLowerCase,
           organization: "",
           role: "",
           status: "",
