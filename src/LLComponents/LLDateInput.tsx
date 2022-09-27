@@ -13,12 +13,14 @@ const LLDateInput = ({
   placeholder,
   dateFormat,
   twStyles,
+  twPlaceholderStyle,
 }: {
   value: dayjs.Dayjs | null;
   onChange: (value: dayjs.Dayjs) => void;
   placeholder?: string;
   dateFormat?: string;
   twStyles?: string;
+  twPlaceholderStyle?: string;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -33,7 +35,7 @@ const LLDateInput = ({
               {value.local().format(dateFormat ? dateFormat : "M/D/YYYY")}
             </Text>
           ) : (
-            <Text>{placeholder}</Text>
+            <Text className={twPlaceholderStyle}>{placeholder}</Text>
           )}
         </Text>
       </View>

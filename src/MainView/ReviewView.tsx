@@ -99,10 +99,9 @@ const ReviewView = ({
             twStyles="text-center text-grey-800 bg-cyan-300 font-bold"
           />
         </View>
-        <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">
-          {reviewContacts &&
-            reviewContacts.length > 0 &&
-            reviewContacts.map(contact => (
+        {reviewContacts && reviewContacts.length > 0 && (
+          <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">
+            {reviewContacts.map(contact => (
               <View
                 key={
                   contact.lastName +
@@ -115,7 +114,8 @@ const ReviewView = ({
                 <ReviewContactLI contact={contact} />
               </View>
             ))}
-        </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

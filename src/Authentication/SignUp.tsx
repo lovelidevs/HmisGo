@@ -36,7 +36,7 @@ const SignUp = ({
           <LLTextInput
             value={emailConfirm}
             onChange={(value: string) => setEmailConfirm(value)}
-            placeholder="email"
+            placeholder="confirm email"
             type="email"
           />
         </View>
@@ -52,7 +52,7 @@ const SignUp = ({
           <LLTextInput
             value={passwordConfirm}
             onChange={(value: string) => setPasswordConfirm(value)}
-            placeholder="password"
+            placeholder="confirm password"
             type="password"
           />
         </View>
@@ -71,15 +71,17 @@ const SignUp = ({
               if (password !== passwordConfirm)
                 return Alert.alert("", "Passwords do not match");
 
+              const emailToLowerCase = email.toLowerCase();
+
               if (confirmationEmailSent)
                 try {
-                  await authContext?.resendConfirmation(email);
+                  await authContext?.resendConfirmation(emailToLowerCase);
                 } catch (error) {
                   return Alert.alert("", String(error));
                 }
               else {
                 try {
-                  await authContext?.registerUser(email, password);
+                  await authContext?.registerUser(emailToLowerCase, password);
                 } catch (error) {
                   return Alert.alert("", String(error));
                 }

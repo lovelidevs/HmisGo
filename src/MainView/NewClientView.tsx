@@ -47,6 +47,7 @@ const NewClientView = ({
             value={DOB}
             onChange={(value: dayjs.Dayjs) => setDOB(value)}
             placeholder="Date of Birth"
+            twPlaceholderStyle="text-gray-300"
           />
         </View>
         <View>

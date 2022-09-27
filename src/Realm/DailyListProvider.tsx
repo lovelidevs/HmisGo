@@ -168,6 +168,15 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
     }
   }, [dailyListId, authContext?.realm]);
 
+  useEffect(() => {
+    console.log("Is this slowing us down?");
+    setCurrentLocation({
+      cityUUID: "",
+      locationCategoryUUID: "",
+      location: "",
+    });
+  }, [dailyListId]);
+
   const createDailyList = (): ObjectId => {
     if (!authContext?.realm) throw "Unable to connect to Realm";
     if (!authContext.userData) throw "Unable to access user data";

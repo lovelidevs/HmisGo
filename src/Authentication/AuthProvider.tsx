@@ -270,7 +270,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
 
         setUserData({
           _id: app.currentUser.id,
-          email,
+          email: email.toLowerCase(),
           organization: "",
           role: "",
           status: "",
