@@ -47,7 +47,7 @@ const MainView = ({
     if (!dailyListContext?.dailyList) return null;
 
     return (
-      <View className="my-2 mx-3">
+      <View className="my-2 mx-3" key={String(client._id)}>
         <ClientLI
           client={client}
           isChecked={isChecked}
