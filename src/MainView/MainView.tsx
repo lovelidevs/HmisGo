@@ -19,6 +19,11 @@ import MenuButton from "./MenuButton";
 
 dayjs.extend(utc);
 
+type FlatListDatum = {
+  client: Client;
+  isChecked: boolean;
+};
+
 const MainView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
@@ -38,34 +43,71 @@ const MainView = ({
     });
   }, [navigation]);
 
-  // TODO: Make it just ONE flat list
+  if (!clientContext?.clients || !dailyListContext?.dailyList)
+    return <LLActivityIndicatorView />;
 
-  const clientMapFn = (
-    client: Client,
-    isChecked: boolean,
+  const generateFlatListData = (): FlatListDatum[] => {
+    const flatListData: FlatListDatum[] = [];
+
+    if (!clientContext.clients) return flatListData;
+
+    for (const client of clientContext.clients) {
+      if (
+        searchText &&
+        ![client.lastName, client.firstName, client.alias]
+          .join(" ")
+          .toLowerCase()
+          .includes(searchText.toLowerCase())
+      )
+        continue;
+      flatListData.push({client, isChecked: false});
+    }
+
+    if (!dailyListContext.dailyList?.contacts) return flatListData;
+
+    let selectedIndex = 0;
+    for (const contact of dailyListContext.dailyList.contacts) {
+      const index = flatListData.findIndex(
+        flatListDatum =>
+          flatListDatum.client._id.toString() === contact.clientId.toString(),
+      );
+
+      if (index === -1) continue;
+
+      const flatListDatum = flatListData.splice(index, 1)[0];
+      flatListDatum.isChecked = true;
+
+      flatListData.splice(selectedIndex, 0, flatListDatum);
+      selectedIndex++;
+    }
+
+    return flatListData;
+  };
+
+  const renderFlatListDatum = (
+    flatListDatum: FlatListDatum,
   ): JSX.Element | null => {
-    if (!dailyListContext?.dailyList) return null;
-
     return (
-      <View className="my-2 mx-3" key={String(client._id)}>
+      <View className="my-2 mx-3">
         <ClientLI
-          client={client}
-          isChecked={isChecked}
+          client={flatListDatum.client}
+          isChecked={flatListDatum.isChecked}
           onCheckboxPress={() => {
             let contactsClone = cloneDeep(
               dailyListContext?.dailyList?.contacts,
             );
             if (!contactsClone) contactsClone = [];
 
-            if (isChecked) {
+            if (flatListDatum.isChecked) {
               const index = contactsClone.findIndex(
                 contact =>
-                  contact.clientId.toString() === client._id.toString(),
+                  contact.clientId.toString() ===
+                  flatListDatum.client._id.toString(),
               );
               contactsClone.splice(index, 1);
             } else
               contactsClone.push({
-                clientId: client._id,
+                clientId: flatListDatum.client._id,
                 timestamp: dayjs.utc().toISOString(),
                 cityUUID: dailyListContext.currentLocation.cityUUID,
                 locationCategoryUUID:
@@ -77,15 +119,16 @@ const MainView = ({
             dailyListContext.updateDailyListContacts(contactsClone);
           }}
           contact={
-            isChecked
-              ? dailyListContext.dailyList.contacts?.find(
+            flatListDatum.isChecked
+              ? dailyListContext?.dailyList?.contacts?.find(
                   contact =>
-                    contact.clientId.toString() === client._id.toString(),
+                    contact.clientId.toString() ===
+                    flatListDatum.client._id.toString(),
                 )
               : undefined
           }
           onEditPress={
-            isChecked
+            flatListDatum.isChecked
               ? clientId => {
                   contactEditorContext?.setContactClientId(clientId);
                   navigation.navigate("ContactEditorNavigator");
@@ -97,45 +140,12 @@ const MainView = ({
     );
   };
 
-  if (!clientContext?.clients || !dailyListContext?.dailyList)
-    return <LLActivityIndicatorView />;
-
-  const selectedClients: Client[] = [];
-  const unselectedClients: Client[] = [];
-
-  for (const client of clientContext.clients) {
-    if (
-      searchText &&
-      ![client.lastName, client.firstName, client.alias]
-        .join(" ")
-        .toLowerCase()
-        .includes(searchText.toLowerCase())
-    )
-      continue;
-    unselectedClients.push(client);
-  }
-
-  if (dailyListContext.dailyList.contacts)
-    for (const contact of dailyListContext?.dailyList?.contacts) {
-      const index = unselectedClients.findIndex(
-        client => client._id.toString() === contact.clientId.toString(),
-      );
-
-      if (index === -1) continue;
-
-      selectedClients.push(unselectedClients.splice(index, 1)[0]);
-    }
-
-  // TODO: Make just one flatlist
-
   return (
     <SafeAreaView>
       <FlatList
-        data={selectedClients}
-        renderItem={({item}) => {
-          return <View key={String(item._id)}>{clientMapFn(item, true)}</View>;
-        }}
-        keyExtractor={item => String(item._id)}
+        data={generateFlatListData()}
+        renderItem={({item}) => renderFlatListDatum(item)}
+        keyExtractor={item => item.client._id.toString()}
         ListHeaderComponent={
           <>
             <LLDebouncedTextInput
@@ -174,18 +184,6 @@ const MainView = ({
               twStyle="my-4 mx-2"
             />
           </>
-        }
-        ListFooterComponent={
-          <FlatList
-            data={unselectedClients}
-            renderItem={({item}) => {
-              return (
-                <View key={String(item._id)}>{clientMapFn(item, false)}</View>
-              );
-            }}
-            keyExtractor={item => String(item._id)}
-            ListFooterComponent={<View className="mb-4" />}
-          />
         }
       />
     </SafeAreaView>
