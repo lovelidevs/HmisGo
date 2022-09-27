@@ -99,12 +99,12 @@ const ServiceEditor = ({
   };
 
   return (
-    <SafeAreaView className={"px-6"}>
+    <SafeAreaView>
       {((): JSX.Element => {
         switch (service.inputType) {
           case InputType.TEXTBOX:
             return (
-              <View className="mt-6">
+              <View>
                 <LLTextInput
                   value={((): string => {
                     const contactService =
@@ -145,7 +145,7 @@ const ServiceEditor = ({
           case InputType.LOCATIONS:
             return (
               <ScrollView>
-                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 my-4">
+                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mx-2 mb-4">
                   {locationContext.locations &&
                     locationContext.getAllLocations().map(listItem => (
                       <View key={listItem}>
@@ -162,7 +162,7 @@ const ServiceEditor = ({
           case InputType.CUSTOM_LIST:
             return (
               <ScrollView>
-                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 my-4">
+                <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mx-2 mb-4">
                   {service.customList?.map(listItem => (
                     <View key={listItem}>
                       <ContactEditorLI

@@ -27,13 +27,13 @@ const LLDateInput = ({
       <View className="rounded-lg border border-gray-300 overflow-hidden">
         <Text
           onPress={() => setOpen(true)}
-          className={`text-lg p-2 bg-white ${twStyles}`}>
+          className={`text-lg p-2 bg-white text-gray-800 ${twStyles}`}>
           {value ? (
-            <Text className="text-gray-800">
+            <Text>
               {value.local().format(dateFormat ? dateFormat : "M/D/YYYY")}
             </Text>
           ) : (
-            <Text className="text-gray-300">{placeholder}</Text>
+            <Text>{placeholder}</Text>
           )}
         </Text>
       </View>

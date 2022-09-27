@@ -33,12 +33,12 @@ const ContactEditor = ({
     return <LLActivityIndicatorView />;
 
   return (
-    <SafeAreaView className={"px-6"}>
+    <SafeAreaView>
       <ScrollView
         contentContainerStyle={tw(
-          "flex flex-col flex-nowrap justify-start items-stretch pb-4 mt-4",
+          "flex flex-col flex-nowrap justify-start items-stretch",
         )}>
-        <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6">
+        <View className="flex flex-row flex-nowrap justify-center items-center w-full mb-6 mx-2">
           <Text className="text-xl text-black font-bold">
             {(() => {
               const client = clientContext.clients.find(value => {
@@ -58,20 +58,22 @@ const ContactEditor = ({
             })()}
           </Text>
         </View>
-        <LLButton
-          title={
-            editorContext.contact.location
-              ? editorContext.contact.location
-              : "SELECT LOCATION"
-          }
-          onPress={() => {
-            navigation.navigate("LocationSelect", {context: "ContactEditor"});
-          }}
-        />
-        <View className="mt-4">
+        <View className="mx-2">
+          <LLButton
+            title={
+              editorContext.contact.location
+                ? editorContext.contact.location
+                : "SELECT LOCATION"
+            }
+            onPress={() => {
+              navigation.navigate("LocationSelect", {context: "ContactEditor"});
+            }}
+          />
+        </View>
+        <View className="mt-4 mx-2">
           <Text className="text-xl text-black font-bold">SERVICES</Text>
         </View>
-        <View className="mt-4 flex flex-col flex-nowrap justify-start items-stretch space-y-2">
+        <View className="mt-4 flex flex-col flex-nowrap justify-start items-stretch space-y-2 mx-2 mb-4">
           {serviceContext.services.categories?.map(category => (
             <View key={category.uuid}>
               <ContactEditorLI

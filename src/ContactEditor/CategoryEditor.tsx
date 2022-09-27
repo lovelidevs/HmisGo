@@ -1,10 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Alert, Platform, ScrollView, View} from "react-native";
+import {Alert, ScrollView, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
 import {ContactService} from "../Realm/DailyListProvider";
@@ -21,7 +20,6 @@ const CategoryEditor = ({
   navigation,
   route,
 }: NativeStackScreenProps<ContactEditorStackParamList, "CategoryEditor">) => {
-  const tw = useTailwind();
   const {categoryUUID} = route.params;
 
   const serviceContext = useContext(ServiceContext);
@@ -122,9 +120,9 @@ const CategoryEditor = ({
   };
 
   return (
-    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
-      <ScrollView contentContainerStyle={tw("pb-4")}>
-        <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2">
+    <SafeAreaView>
+      <ScrollView>
+        <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mx-2 mb-4">
           {category.services &&
             category.services.map(service => (
               <View key={service.uuid}>

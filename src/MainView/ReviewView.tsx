@@ -90,13 +90,13 @@ const ReviewView = ({
   return (
     <SafeAreaView>
       <ScrollView contentContainerStyle={tw("px-6 pb-6")}>
-        <View className={Platform.OS === "android" ? "mt-6" : ""}>
+        <View className={Platform.OS === "android" ? "mt-6" : "mt-4"}>
           <LLDateInput
             value={date}
             onChange={(value: dayjs.Dayjs) => setDate(value)}
             placeholder="REVIEW DATE"
             dateFormat="MMMM DD, YYYY"
-            twStyles="text-center text-gray-800 bg-cyan-300 font-bold"
+            twStyles="text-center text-grey-800 bg-cyan-300 font-bold"
           />
         </View>
         <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">

@@ -1,12 +1,11 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Platform, ScrollView, View} from "react-native";
+import {FlatList, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {useTailwind} from "tailwindcss-react-native";
 
 import {ContactEditorContext} from "../ContactEditor/ContactEditorProvider";
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
@@ -23,8 +22,6 @@ dayjs.extend(utc);
 const MainView = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "HmisGo">) => {
-  const tw = useTailwind();
-
   const clientContext = useContext(ClientContext);
   const dailyListContext = useContext(DailyListContext);
   const contactEditorContext = useContext(ContactEditorContext);
@@ -43,11 +40,14 @@ const MainView = ({
 
   // TODO: Change the clients into a flatlist
 
-  const clientMapFn = (client: Client, isChecked: boolean) => {
-    if (!dailyListContext?.dailyList) return;
+  const clientMapFn = (
+    client: Client,
+    isChecked: boolean,
+  ): JSX.Element | null => {
+    if (!dailyListContext?.dailyList) return null;
 
     return (
-      <View key={String(client._id)}>
+      <View className="my-2 mx-3">
         <ClientLI
           client={client}
           isChecked={isChecked}
@@ -101,78 +101,93 @@ const MainView = ({
     return <LLActivityIndicatorView />;
 
   return (
-    <SafeAreaView className={`px-6 ${Platform.OS === "android" && "pt-6"}`}>
-      <ScrollView
-        contentContainerStyle={tw(
-          "flex flex-col flex-nowrap justify-start items-stretch",
-        )}>
-        <LLDebouncedTextInput
-          initialValue={
-            dailyListContext.dailyList.note
-              ? dailyListContext.dailyList.note?.join("\n")
-              : ""
-          }
-          onChange={value => {
-            dailyListContext.updateDailyListNote(
-              value ? value.split("\n") : [],
+    <SafeAreaView>
+      {(() => {
+        const selectedClients: Client[] = [];
+        const unselectedClients: Client[] = [];
+
+        for (const client of clientContext.clients) {
+          if (
+            searchText &&
+            ![client.lastName, client.firstName, client.alias]
+              .join(" ")
+              .toLowerCase()
+              .includes(searchText.toLowerCase())
+          )
+            continue;
+          unselectedClients.push(client);
+        }
+
+        if (dailyListContext.dailyList.contacts)
+          for (const contact of dailyListContext?.dailyList?.contacts) {
+            const index = unselectedClients.findIndex(
+              client => client._id.toString() === contact.clientId.toString(),
             );
-          }}
-          placeholder="NOTES"
-          multiline={true}
-          twStyle="mb-4"
-        />
-        <LLButton
-          title={
-            dailyListContext.currentLocation.location
-              ? dailyListContext.currentLocation.location
-              : "SELECT LOCATION"
+
+            if (index === -1) continue;
+
+            selectedClients.push(unselectedClients.splice(index, 1)[0]);
           }
-          onPress={() => {
-            navigation.navigate("LocationSelect", {context: "DailyList"});
-          }}
-        />
-        <LLDebouncedTextInput
-          initialValue={searchText}
-          onChange={(value: string) => setSearchText(value)}
-          placeholder="SEARCH"
-          twStyle="mt-4"
-        />
-        <View className="space-y-4 my-4">
-          {(() => {
-            const selectedClients: Client[] = [];
-            const unselectedClients: Client[] = [];
 
-            for (const client of clientContext.clients) {
-              if (
-                searchText &&
-                ![client.lastName, client.firstName, client.alias]
-                  .join(" ")
-                  .toLowerCase()
-                  .includes(searchText.toLowerCase())
-              )
-                continue;
-              unselectedClients.push(client);
+        return [
+          <FlatList
+            data={selectedClients}
+            renderItem={({item}) => {
+              return clientMapFn(item, true);
+            }}
+            keyExtractor={item => String(item._id)}
+            ListHeaderComponent={
+              <>
+                <LLDebouncedTextInput
+                  initialValue={
+                    dailyListContext.dailyList.note
+                      ? dailyListContext.dailyList.note?.join("\n")
+                      : ""
+                  }
+                  onChange={value => {
+                    dailyListContext.updateDailyListNote(
+                      value ? value.split("\n") : [],
+                    );
+                  }}
+                  placeholder="NOTES"
+                  multiline={true}
+                  twStyle="mb-4 mx-2"
+                />
+                <View className="mx-2">
+                  <LLButton
+                    title={
+                      dailyListContext.currentLocation.location
+                        ? dailyListContext.currentLocation.location
+                        : "SELECT LOCATION"
+                    }
+                    onPress={() => {
+                      navigation.navigate("LocationSelect", {
+                        context: "DailyList",
+                      });
+                    }}
+                  />
+                </View>
+                <LLDebouncedTextInput
+                  initialValue={searchText}
+                  onChange={(value: string) => setSearchText(value)}
+                  placeholder="SEARCH"
+                  twStyle="my-4 mx-2"
+                />
+              </>
             }
-
-            if (dailyListContext.dailyList.contacts)
-              for (const contact of dailyListContext?.dailyList?.contacts) {
-                const index = unselectedClients.findIndex(
-                  client =>
-                    client._id.toString() === contact.clientId.toString(),
-                );
-
-                if (index === -1) continue;
-
-                selectedClients.push(unselectedClients.splice(index, 1)[0]);
-              }
-
-            return [
-              selectedClients.map(client => clientMapFn(client, true)),
-              unselectedClients.map(client => clientMapFn(client, false)),
-            ];
-          })()}
-        </View>
-      </ScrollView>
+            ListFooterComponent={
+              <FlatList
+                data={unselectedClients}
+                renderItem={({item}) => {
+                  return clientMapFn(item, false);
+                }}
+                keyExtractor={item => String(item._id)}
+                ListFooterComponent={<View className="mb-4" />}
+              />
+            }
+          />,
+        ];
+      })()}
     </SafeAreaView>
   );
 };

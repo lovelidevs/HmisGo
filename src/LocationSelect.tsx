@@ -3,6 +3,7 @@ import {View} from "react-native";
 
 import {Picker} from "@react-native-picker/picker";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
+import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
 import {ContactEditorContext} from "./ContactEditor/ContactEditorProvider";
@@ -66,12 +67,15 @@ const LocationSelect = ({
 
   const locationContext = useContext(LocationContext);
 
-  const viewStyle = tw("rounded-lg border border-gray-300 overflow-hidden");
-  const pickerStyle = tw("text-black bg-white");
+  const pickerStyle = tw(
+    "rounded-lg border border-gray-300 overflow-hidden p-0 mx-2 mb-2 text-black bg-white max-h-[31%]",
+  );
+
+  const itemStyle = tw("text-base");
 
   return (
-    <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-4">
-      <View style={viewStyle}>
+    <SafeAreaView>
+      <View className="flex flex-col flex-nowrap justify-start items-stretch h-full">
         <Picker
           selectedValue={cityUUID}
           onValueChange={itemValue => {
@@ -80,7 +84,8 @@ const LocationSelect = ({
             setLocation("");
           }}
           dropdownIconColor="black"
-          style={pickerStyle}>
+          style={pickerStyle}
+          itemStyle={itemStyle}>
           <Picker.Item key="" label={"SELECT CITY"} value={""} />
           {locationContext &&
             locationContext.locations?.cities?.map(city => (
@@ -91,8 +96,6 @@ const LocationSelect = ({
               />
             ))}
         </Picker>
-      </View>
-      <View style={viewStyle}>
         <Picker
           selectedValue={locationCategoryUUID}
           onValueChange={itemValue => {
@@ -100,7 +103,8 @@ const LocationSelect = ({
             setLocation("");
           }}
           dropdownIconColor="black"
-          style={pickerStyle}>
+          style={pickerStyle}
+          itemStyle={itemStyle}>
           <Picker.Item key="" label={"SELECT CATEGORY"} value={""} />
           {(() => {
             const city = locationContext?.cityFromUUID(cityUUID);
@@ -115,13 +119,12 @@ const LocationSelect = ({
             ));
           })()}
         </Picker>
-      </View>
-      <View style={viewStyle}>
         <Picker
           selectedValue={location}
           onValueChange={itemValue => setLocation(itemValue)}
           dropdownIconColor="black"
-          style={pickerStyle}>
+          style={pickerStyle}
+          itemStyle={itemStyle}>
           <Picker.Item key="" label={"SELECT LOCATION"} value={""} />
           {(() => {
             const locationCategory = locationContext?.locationCategoryFromUUIDs(
@@ -155,7 +158,7 @@ const LocationSelect = ({
           })()}
         </Picker>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

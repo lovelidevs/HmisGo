@@ -87,7 +87,7 @@ const ClientLI = ({
           onFillColor: TW_CYAN_300,
         })}
       />
-      <View className="shrink flex flex-col col-nowrap justify-start items-start ml-2">
+      <View className="shrink flex flex-col col-nowrap justify-start items-start ml-3">
         <Text className={`text-base text-black ${isChecked && "font-bold"}`}>
           {clientToString(client)}
         </Text>
