@@ -10,14 +10,16 @@ import ResetPassword from "./Authentication/ResetPassword";
 import SignUp from "./Authentication/SignUp";
 import ContactEditorNavigator from "./ContactEditor/ContactEditorNavigator";
 import DailyListSelectView from "./DailyListSelectView";
+import LocationSelect from "./LocationSelect";
 import MainView from "./MainView/MainView";
 import NewClientView from "./MainView/NewClientView";
 import ReviewView from "./MainView/ReviewView";
 import {TW_CYAN_300, TW_GRAY_800} from "./Theme";
 
 export type RootStackParamList = {
-  ListSelect: undefined;
+  DailyListSelect: undefined;
   HmisGo: undefined;
+  LocationSelect: {context: "DailyList" | "ContactEditor"};
   NewClient: undefined;
   Review: undefined;
   ContactEditorNavigator: undefined;
@@ -52,6 +54,11 @@ const NavigationStack = () => {
                 name="HmisGo"
                 component={MainView}
                 options={{title: "HMIS Go"}}
+              />
+              <Stack.Screen
+                name="LocationSelect"
+                component={LocationSelect}
+                options={{title: "Location Select", presentation: "modal"}}
               />
               <Stack.Screen
                 name="NewClient"

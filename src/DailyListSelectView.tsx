@@ -18,7 +18,7 @@ dayjs.extend(utc);
 
 const DailyListSelectView = ({
   navigation,
-}: NativeStackScreenProps<RootStackParamList, "ListSelect">) => {
+}: NativeStackScreenProps<RootStackParamList, "DailyListSelect">) => {
   const authContext = useContext(AuthContext);
   const dailyListContext = useContext(DailyListContext);
 

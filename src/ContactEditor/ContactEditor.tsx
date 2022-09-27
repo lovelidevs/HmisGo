@@ -2,12 +2,11 @@ import React, {useContext} from "react";
 import {ScrollView, Text, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import cloneDeep from "lodash.clonedeep";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useTailwind} from "tailwindcss-react-native";
 
 import LLActivityIndicatorView from "../LLComponents/LLActivityIndicatorView";
-import LocationPickers from "../LocationPickers";
+import LLButton from "../LLComponents/LLButton";
 import {ClientContext} from "../Realm/ClientProvider";
 import {LocationContext} from "../Realm/LocationProvider";
 import {ServiceContext} from "../Realm/ServiceProvider";
@@ -59,22 +58,14 @@ const ContactEditor = ({
             })()}
           </Text>
         </View>
-        <LocationPickers
-          value={{
-            cityUUID: editorContext.contact.cityUUID,
-            locationCategoryUUID: editorContext.contact.locationCategoryUUID,
-            location: editorContext.contact.location,
-          }}
-          onChange={value => {
-            const contactClone = cloneDeep(editorContext.contact);
-
-            if (!contactClone) return;
-
-            contactClone.cityUUID = value.cityUUID;
-            contactClone.locationCategoryUUID = value.locationCategoryUUID;
-            contactClone.location = value.location;
-
-            editorContext.setContact(contactClone);
+        <LLButton
+          title={
+            editorContext.contact.location
+              ? editorContext.contact.location
+              : "SELECT LOCATION"
+          }
+          onPress={() => {
+            navigation.navigate("LocationSelect", {context: "ContactEditor"});
           }}
         />
         <View className="mt-4">

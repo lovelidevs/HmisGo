@@ -1,12 +1,16 @@
 import React, {useContext, useEffect, useState} from "react";
 import {Alert, Platform, SafeAreaView, ScrollView, View} from "react-native";
 
+import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {useTailwind} from "tailwindcss-react-native";
 
 import LLDateInput from "../LLComponents/LLDateInput";
+import LLHeaderButton from "../LLComponents/LLHeaderButton";
+import {RootStackParamList} from "../NavigationStack";
 import {ClientContext, ClientService} from "../Realm/ClientProvider";
+import {TW_CYAN_300, TW_GRAY_800} from "../Theme";
 import ReviewContactLI from "./ReviewContactLI";
 
 dayjs.extend(utc);
@@ -21,7 +25,9 @@ export type ReviewContact = {
   services?: ClientService[];
 };
 
-const ReviewView = () => {
+const ReviewView = ({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, "Review">) => {
   const tw = useTailwind();
 
   const clientContext = useContext(ClientContext);
@@ -30,6 +36,17 @@ const ReviewView = () => {
   const [reviewContacts, setReviewContacts] = useState<ReviewContact[] | null>(
     null,
   );
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerStyle: {backgroundColor: TW_GRAY_800},
+      headerTintColor: TW_CYAN_300,
+      headerTitleAlign: "center",
+      headerRight: () => (
+        <LLHeaderButton title="✓" onPress={() => navigation.goBack()} />
+      ),
+    });
+  });
 
   useEffect(() => {
     if (!date) return setReviewContacts(null);
@@ -79,7 +96,7 @@ const ReviewView = () => {
             onChange={(value: dayjs.Dayjs) => setDate(value)}
             placeholder="REVIEW DATE"
             dateFormat="MMMM DD, YYYY"
-            twStyles="text-center bg-cyan-300 font-bold"
+            twStyles="text-center text-gray-800 bg-cyan-300 font-bold"
           />
         </View>
         <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">

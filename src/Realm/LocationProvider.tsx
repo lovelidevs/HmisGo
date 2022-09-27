@@ -33,11 +33,15 @@ export type Location = {
 type LocationContextType = {
   locations: LocationDocument | null;
   getAllLocations: () => string[];
-  cityFromUUID: (cityUUID: string) => string | undefined;
+  cityFromUUID: (cityUUID: string) => City | undefined;
   locationCategoryFromUUIDs: (
     cityUUID: string,
     locationCategoryUUID: string,
-  ) => string | undefined;
+  ) => LocationCategory | undefined;
+  locationsFromUUIDs: (
+    cityUUID: string,
+    locationCategoryUUID: string,
+  ) => string[];
 };
 
 export const LocationContext = React.createContext<LocationContextType | null>(
@@ -91,19 +95,39 @@ const LocationProvider = ({children}: {children: ReactNode}) => {
     );
   };
 
-  const cityFromUUID = (cityUUID: string): string | undefined => {
-    const result = locations?.cities?.find(city => city.uuid === cityUUID);
-    return result ? result.city : undefined;
-  };
+  const cityFromUUID = (cityUUID: string): City | undefined =>
+    locations?.cities?.find(city => city.uuid === cityUUID);
 
   const locationCategoryFromUUIDs = (
     cityUUID: string,
     locationCategoryUUID: string,
-  ): string | undefined => {
-    const result = locations?.cities
-      ?.find(city => city.uuid === cityUUID)
-      ?.categories?.find(cat => cat.uuid === locationCategoryUUID);
-    return result ? result.category : undefined;
+  ): LocationCategory | undefined =>
+    cityFromUUID(cityUUID)?.categories?.find(
+      category => category.uuid === locationCategoryUUID,
+    );
+
+  const locationsFromUUIDs = (
+    cityUUID: string,
+    locationCategoryUUID: string,
+  ): string[] => {
+    const locationCategory = locationCategoryFromUUIDs(
+      cityUUID,
+      locationCategoryUUID,
+    );
+
+    if (!locationCategory || !locationCategory.locations) return [];
+
+    const result: string[] = [];
+
+    for (const location of locationCategory.locations) {
+      result.push(location.location);
+
+      if (!location.places) continue;
+
+      for (const place of location.places) result.push(place);
+    }
+
+    return result;
   };
 
   return (
@@ -113,6 +137,7 @@ const LocationProvider = ({children}: {children: ReactNode}) => {
         getAllLocations,
         cityFromUUID,
         locationCategoryFromUUIDs,
+        locationsFromUUIDs,
       }}>
       {children}
     </LocationContext.Provider>
