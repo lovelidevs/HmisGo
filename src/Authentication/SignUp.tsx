@@ -66,7 +66,7 @@ const SignUp = ({
             onPress={async () => {
               if (!email) return Alert.alert("", "Email address is required");
               if (!password) return Alert.alert("", "Password is required");
-              if (email !== emailConfirm)
+              if (email.toLowerCase() !== emailConfirm.toLowerCase())
                 return Alert.alert("", "Emails do not match");
               if (password !== passwordConfirm)
                 return Alert.alert("", "Passwords do not match");
