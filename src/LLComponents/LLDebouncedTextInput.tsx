@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 
 import debounce from "lodash.debounce";
 
@@ -20,6 +20,10 @@ const LLDebouncedTextInput = ({
   twStyle?: string;
 }) => {
   const [optimsticValue, setOptimsticValue] = useState<string>(initialValue);
+
+  useEffect(() => {
+    setOptimsticValue(initialValue);
+  }, [initialValue]);
 
   const debouncedOnChange = useMemo(
     () =>
