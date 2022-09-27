@@ -169,7 +169,6 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
   }, [dailyListId, authContext?.realm]);
 
   useEffect(() => {
-    console.log("Is this slowing us down?");
     setCurrentLocation({
       cityUUID: "",
       locationCategoryUUID: "",
