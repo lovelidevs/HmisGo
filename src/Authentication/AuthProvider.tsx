@@ -240,7 +240,6 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
           setRealm(null);
         };
       } catch (error) {
-        console.log(error);
         Alert.alert("Error opening Realm", String(error));
       }
     })();
