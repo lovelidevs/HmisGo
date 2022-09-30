@@ -7,7 +7,7 @@ const clientSchema = {
   name: "client",
   properties: {
     _id: "objectId",
-    DOB: "string",
+    DOB: "string?",
     alias: "string?",
     firstName: "string",
     hmisID: "string?",
@@ -240,6 +240,7 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
           setRealm(null);
         };
       } catch (error) {
+        console.log(error);
         Alert.alert("Error opening Realm", String(error));
       }
     })();
