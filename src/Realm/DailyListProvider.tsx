@@ -12,15 +12,19 @@ import {LocationContext} from "./LocationProvider";
 
 dayjs.extend(utc);
 
+type DailyListStatus = "ACTIVE" | "SUBMITTED";
+
 export type DailyListKey = {
   _id: ObjectId;
   creator: string;
   timestamp: string;
+  status: "ACTIVE" | "SUBMITTED" | null;
 };
 
 export type DailyList = {
   _id: ObjectId;
   organization: string;
+  status: DailyListStatus | null;
   creator: string;
   timestamp: string;
   note: string[] | null;
@@ -116,6 +120,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
             _id: new ObjectId(list._id),
             creator: list.creator,
             timestamp: dayjs.utc(list.timestamp).toISOString(),
+            status: list.status,
           });
 
         setDailyListKeys(keys);
@@ -188,6 +193,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
       creator: authContext.userData.email
         ? authContext.userData.email.split("@")[0]
         : "",
+      status: "ACTIVE",
       timestamp: dayjs.utc().toISOString(),
       note: [],
       contacts: [],
@@ -271,6 +277,8 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
     if (!authContext.userData) throw "Unable to access user data";
     if (!clientContext) throw "No client context";
 
+    if (dailyList.status === "SUBMITTED") throw "Daily list already submitted";
+
     if (dailyList.note && dailyList.note.length > 0)
       try {
         authContext.realm.write(() => {
@@ -298,6 +306,7 @@ const DailyListProvider = ({children}: {children: ReactNode}) => {
 
     try {
       authContext.realm.write(() => {
+        (dailyListRealmObject as unknown as DailyList).status = "SUBMITTED";
         authContext.realm?.delete(dailyListRealmObject);
       });
 

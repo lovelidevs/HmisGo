@@ -1,5 +1,12 @@
 import React, {useContext, useEffect, useState} from "react";
-import {Alert, Platform, SafeAreaView, ScrollView, View} from "react-native";
+import {
+  Alert,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import dayjs from "dayjs";
@@ -10,6 +17,7 @@ import LLDateInput from "../LLComponents/LLDateInput";
 import LLHeaderButton from "../LLComponents/LLHeaderButton";
 import {RootStackParamList} from "../NavigationStack";
 import {ClientContext, ClientService} from "../Realm/ClientProvider";
+import {Note, NoteContext} from "../Realm/NoteProvider";
 import {TW_CYAN_300, TW_GRAY_800} from "../Theme";
 import ReviewContactLI from "./ReviewContactLI";
 
@@ -31,8 +39,10 @@ const ReviewView = ({
   const tw = useTailwind();
 
   const clientContext = useContext(ClientContext);
+  const noteContext = useContext(NoteContext);
 
   const [date, setDate] = useState<dayjs.Dayjs | null>(null);
+  const [reviewNotes, setReviewNotes] = useState<Note[] | null>(null);
   const [reviewContacts, setReviewContacts] = useState<ReviewContact[] | null>(
     null,
   );
@@ -47,6 +57,18 @@ const ReviewView = ({
       ),
     });
   });
+
+  useEffect(() => {
+    if (!date) return setReviewNotes(null);
+    if (!noteContext)
+      return Alert.alert("", "Unable to connect to notes collection");
+
+    try {
+      setReviewNotes(noteContext.getNotesOnDate(date));
+    } catch (error) {
+      return Alert.alert("", String(error));
+    }
+  }, [date, noteContext]);
 
   useEffect(() => {
     if (!date) return setReviewContacts(null);
@@ -84,9 +106,6 @@ const ReviewView = ({
     setReviewContacts(result);
   }, [date, clientContext]);
 
-  // TODO: Add notes
-  // TODO: Add something if there are no notes or contacts -> sorry, nothing to see here
-
   return (
     <SafeAreaView>
       <ScrollView contentContainerStyle={tw("px-6 pb-6")}>
@@ -99,6 +118,20 @@ const ReviewView = ({
             twStyles="text-center text-grey-800 bg-cyan-300 font-bold"
           />
         </View>
+        {reviewNotes && reviewNotes.length > 0 ? (
+          <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">
+            {reviewNotes.map(note => (
+              <View
+                key={note._id.toString()}
+                className="flex flex-col justify-start items-start">
+                <Text className="color-black font-bold text-base">
+                  {dayjs(note.datetime).local().format("h:mm A")}
+                </Text>
+                <Text className="color-black text-base">{note.content}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
         {reviewContacts && reviewContacts.length > 0 && (
           <View className="flex flex-col flex-nowrap justify-start items-stretch space-y-2 mt-4">
             {reviewContacts.map(contact => (
