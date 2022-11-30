@@ -1,5 +1,5 @@
 import React, {useContext, useEffect} from "react";
-import {Alert, ScrollView, Text, View} from "react-native";
+import {Alert, ScrollView, View} from "react-native";
 
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import dayjs from "dayjs";
