@@ -127,7 +127,9 @@ const ReviewView = ({
                 <Text className="color-black font-bold text-base">
                   {dayjs(note.datetime).local().format("h:mm A")}
                 </Text>
-                <Text className="color-black text-base">{note.content}</Text>
+                <Text className="color-black text-base">
+                  {note.content.join("\n")}
+                </Text>
               </View>
             ))}
           </View>
