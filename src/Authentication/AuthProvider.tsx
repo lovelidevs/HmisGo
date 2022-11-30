@@ -123,6 +123,7 @@ const dailylistSchema = {
     creator: "string",
     note: "string[]",
     organization: "string",
+    status: "string?",
     timestamp: "date",
   },
   primaryKey: "_id",
@@ -240,7 +241,13 @@ const AuthProvider = ({children}: {children: ReactNode}) => {
           setRealm(null);
         };
       } catch (error) {
-        Alert.alert("Error opening Realm", String(error));
+        if (
+          (error as object).hasOwnProperty("message") &&
+          (error as object).hasOwnProperty("errorCode")
+        ) {
+          const errorCopy = error as {message: string; errorCode: number};
+          Alert.alert("Error opening Realm", errorCopy.message);
+        } else Alert.alert("Error opening Realm", String(error));
       }
     })();
   }, [user, userData?.organization]);

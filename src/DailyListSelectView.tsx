@@ -7,6 +7,7 @@ import utc from "dayjs/plugin/utc";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 import {AuthContext} from "./Authentication/AuthProvider";
+import DailyListSelectItem from "./DailyListSelectItem";
 import LogoutIcon from "./Icons/logout.svg";
 import LLActivityIndicatorView from "./LLComponents/LLActivityIndicatorView";
 import LLButton from "./LLComponents/LLButton";
@@ -64,23 +65,15 @@ const DailyListSelectView = ({
           </View>
           {dailyListContext.dailyListKeys &&
             dailyListContext.dailyListKeys.map(key => (
-              <Text
-                key={key.creator + key.timestamp}
-                className={
-                  "p-2 bg-white text-lg text-black rounded-lg border border-gray-300"
-                }
-                onPress={() => {
-                  dailyListContext.setDailyListId(key._id);
-                  navigation.navigate("HmisGo");
-                }}>
-                <Text className="font-bold">
-                  <Text>Join </Text>
-                  <Text className={"text-cyan-300"}>{key.creator + "\n"}</Text>
-                </Text>
-                <Text>
-                  {"created @ " + dayjs(key.timestamp).format("h:mm A on M/D")}
-                </Text>
-              </Text>
+              <View key={key.creator + key.timestamp}>
+                <DailyListSelectItem
+                  dailyListKey={key}
+                  onPress={() => {
+                    dailyListContext.setDailyListId(key._id);
+                    navigation.navigate("HmisGo");
+                  }}
+                />
+              </View>
             ))}
         </View>
       </ScrollView>
